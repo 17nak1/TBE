@@ -19,6 +19,8 @@ let fmin    = require('fmin')
 let fs = require('fs')
 
 
+
+
 let dt = 0.005 // Step size only use in covar
 let startTime = 1991
 let endTime = 2008
@@ -35,7 +37,7 @@ let paramsFixed =[Index.p, Index.delta, Index.mu_e, Index.mu_ql, Index.mu_el, In
 let paramsNotrans = [].concat(paramsFixed)              
 let ParamSetFile, paramProf
 if (run === 1) {
-  ParamSetFile = "./ParamSet_TBE1.csv" 
+  ParamSetFile = "./ParamSet_TBE.csv" 
   paramProf = null 
 } else {
   ParamSetFile = `ParamSet_run${run}.csv`    
@@ -111,7 +113,6 @@ for ( let i = 0; i < fullset[0].length; i++) {
   params.push(Number(fullset[1][i]))
 }
 
-
 traj_match (interpolTemperature, data, params, times, index, place)
 function traj_match (interpolTemperature, data, params, times, index, place) {
   let deltaT = (1 / 52) * 365
@@ -178,7 +179,7 @@ function traj_match (interpolTemperature, data, params, times, index, place) {
 
  //* ODE solver
 function integrate (interpolTemperature, params, times, deltaT) {
-  let steps = 2000 // Total number of steps in the each interval.
+  let steps = deltaT/ .005 // Total number of steps in the each interval.
   let t0 = times[0]
   let dataStartTime = Number(times[1].toFixed(6))
   let dataEndTime = times[2]
@@ -196,7 +197,7 @@ function integrate (interpolTemperature, params, times, deltaT) {
     Npre = N
     for (let stp = 0; stp < steps; stp++) { 
       gam = stp / steps * dt
-      N = mathLib.odeMethod('rkf45', snippet.skeleton, N, k + gam , 1 / steps * dt, params, interpolTemperature)
+      N = mathLib.odeMethod('euler', snippet.skeleton, N, k + gam , 1 / steps * dt, params, interpolTemperature)
     }//console.log(k,N)
     timetemp = k
     k += dt
@@ -222,11 +223,12 @@ function integrate (interpolTemperature, params, times, deltaT) {
       dt = deltaT
     }
     N[casesPlace] = 0
+    
     for (let stp = 0; stp < steps; stp++) { 
       gam = stp / steps * dt
-      N = mathLib.odeMethod('rkf45', snippet.skeleton, N, k + gam , 1 / steps * dt, params, interpolTemperature)
-      H = N[casesPlace]
-    }console.log(k,N)
+      N = mathLib.odeMethod('euler', snippet.skeleton, N, k + gam , 1 / steps * dt, params, interpolTemperature)
+    }
+  
     k = k2
     count++
     arr.push(N[casesPlace])

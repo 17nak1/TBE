@@ -123,7 +123,7 @@ snippet.skeleton = function (t, N, params, interpolateTemp) {
   DH_s = mu_h - beta_nh * a_n * QN_i * H_s - mu_h * H_s;
   DH_i = beta_nh * a_n * QN_i * H_s - gamma * H_i - mu_h * H_i;
   Dcases = beta_n * QN_i + beta_a * QA_i;
-  return [DE, DQL, DEL_s, DEL_i,DQN_s,DQN_i, DEN_s, DEN_i, DQA_s, DQA_i, DEA, DH_s, DH_i, Dcases ]
+  return [DE, DQL, DEL_s, DEL_i,DQN_s,DQN_i, DEN_s, DEN_i, DQA_s, DQA_i, DEA, DH_s, DH_i, Dcases]
 }
 
 
