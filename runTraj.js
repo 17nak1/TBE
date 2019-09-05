@@ -37,7 +37,7 @@ let paramsFixed =[Index.p, Index.delta, Index.mu_e, Index.mu_ql, Index.mu_el, In
 let paramsNotrans = [].concat(paramsFixed)              
 let ParamSetFile, paramProf
 if (run === 1) {
-  ParamSetFile = "./ParamSet_TBE.csv" 
+  ParamSetFile = "./ParamSet_TBE3.csv" 
   paramProf = null 
 } else {
   ParamSetFile = `ParamSet_run${run}.csv`    
@@ -52,7 +52,7 @@ paramsNoic = [Index.p, Index.omega, Index.delta, Index.mu_e, Index.mu_ql, Index.
               Index.alpha, Index.f_l, Index.f_n, Index.f_a,  Index.kappa, Index.c,Index.Tf, Index.obsprob, Index.T_min_l,Index.gamma]
 paramsIc  = snippet.statenames()
 
-// paramsFit =  paramsNoic - paramfixed
+// paramsFit := paramsNoic - paramfixed
 let paramsFit = []
 let flag = 0
 for (let i = 0; i < paramsNoic.length; i++) {
@@ -68,7 +68,7 @@ for (let i = 0; i < paramsNoic.length; i++) {
 flag = 0
 }
 
-// paramsIcFit = paramsIc - paramfixed
+// paramsIcFit := paramsIc - paramfixed
 let paramsIcFit = []
 flag = 0
 for (let i = 0; i < paramsIc.length; i++) {
@@ -158,6 +158,16 @@ function traj_match (interpolTemperature, data, params, times, index, place) {
     model.fromEstimationScale(params, logTrans, logitTrans)
     
     var simH = integrate(interpolTemperature, params, times, deltaT)
+    // var f = []
+    // var set1 = fs.readFileSync("./c.csv").toString()
+    // var lines = set1.split('\n')
+    // for (let i = 0; i < lines.length; i++) {
+    //   f.push(lines[i].split(','))
+    // }
+    // let simH = []
+    // for ( let i = 1; i < f.length -1; i++) {
+    //   simH.push(Number(f[i][2]));console.log(Number(f[i][2]))
+    // }
     for (let i = 0; i < simH.length; i++) {
       likvalue = snippet.dObs(params[Index.obsprob], simH[i], data[i][1], 1)//;ar.push([likvalue])
       loglik = loglik + likvalue

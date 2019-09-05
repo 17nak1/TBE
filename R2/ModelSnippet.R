@@ -11,7 +11,7 @@ dObs <- Csnippet("
                  } else {
                  lik = (give_log) ? 0 : 1;
                  }
-                 //printf(\"final %f \\n \",lik);
+                 printf(\" %f \\n \",lik);
                  ")
 
 rObs <- Csnippet("
@@ -87,8 +87,8 @@ skel <- Csnippet("
                  DH_s = mu_h - beta_nh*a_n*QN_i*H_s - mu_h * H_s;
                  DH_i = beta_nh*a_n*QN_i*H_s - gamma*H_i - mu_h * H_i;
                  Dcases = beta_n*QN_i + beta_a*QA_i;
-                 if( t < 20){
-                 printf(\" t =%f; temp=%f  ;De= %f\\n \",t , temperature, DE);}
+                 //if( t < 100){
+                 //printf(\" t =%f; temp=%f  ;E= %f\\n \",t , temperature, E);}
                  ")
 
 statenames <- c("E","QL","EL_s","EL_i","QN_s","QN_i","EN_s","EN_i","QA_s","QA_i","EA","H_s","H_i")

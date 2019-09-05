@@ -18,10 +18,7 @@ let DetermineRun = require('./determineRun')
 let fmin    = require('fmin')
 let fs = require('fs')
 const Module = require('./lsoda.js')
-
-
-
-
+/************************************************************ Will be defined in ui ************************************************/
 let dt = 0.005 // Step size only use in covar
 let startTime = 1991
 let endTime = 2008
@@ -38,7 +35,7 @@ let paramsFixed =[Index.p, Index.delta, Index.mu_e, Index.mu_ql, Index.mu_el, In
 let paramsNotrans = [].concat(paramsFixed)              
 let ParamSetFile, paramProf
 if (run === 1) {
-  ParamSetFile = "./ParamSet_TBE.csv" 
+  ParamSetFile = "./ParamSet_TBENAN.csv" 
   paramProf = null 
 } else {
   ParamSetFile = `ParamSet_run${run}.csv`    
@@ -46,8 +43,6 @@ if (run === 1) {
 }  
 
 paramsFixed = [...paramsFixed, paramProf]
-
-// Define all type of parameters
 paramsNoic = [Index.p, Index.omega, Index.delta, Index.mu_e, Index.mu_ql, Index.mu_el, Index.mu_qn, Index.mu_en, Index.mu_qa,
               Index.mu_ea, Index.mu_h, Index.beta_nh, Index.beta_hl,Index.beta_hn, Index.lambda_l, Index.lambda_n, Index.lambda_a,
               Index.alpha, Index.f_l, Index.f_n, Index.f_a,  Index.kappa, Index.c,Index.Tf, Index.obsprob, Index.T_min_l,Index.gamma]
@@ -113,9 +108,8 @@ let params = []
 for ( let i = 0; i < fullset[0].length; i++) {
   params.push(Number(fullset[1][i]))
 }
-
-traj_match (interpolTemperature, data, params, times, index, place)
-function traj_match (interpolTemperature, data, params, times, index, place) {
+/**************************************************************************************************************************************************/
+function traj_match (data, params, times, index, place) {
   let deltaT = (1 / 52) * 365
   var tempIndex = 0
   var estimated = []
@@ -132,25 +126,24 @@ function traj_match (interpolTemperature, data, params, times, index, place) {
   // Change the parameters' scale 
   model.toEstimationScale(params, logTrans, logitTrans)
  
-
   // Choose those that should be estimated.
   for (let i = 0; i < index.length; i++) {
     if (index[i] === 1 ) {
       estimated.push(params[i])
     }
   }
-  let DATE = new Date() 
+  console.log(estimated)
   //* Optimizer function using Nelder Mead method
-  // solution = fmin.nelderMead(logLik,estimated )
-  logLik (estimated)
-  console.log(new Date() - DATE)
+  solution = fmin.nelderMead(logLik,estimated )
+  // logLik (estimated)
+  
   //* calculate log likelihood
   function logLik (estimated) {
     var likvalue = 0
     var loglik = 0
     var rho 
     var psi
-    //var ar = []
+    var simHarranged = []
     for (let i = 0; i < estimated.length; i++) {
       params[place[i]] = estimated[i]
     }
@@ -158,128 +151,59 @@ function traj_match (interpolTemperature, data, params, times, index, place) {
     // Return parameters' scale to original
     model.fromEstimationScale(params, logTrans, logitTrans)
     
-    var simH = integrate(interpolTemperature, params, times, deltaT)
-    for (let i = 0; i < simH.length; i++) {
-      likvalue = snippet.dObs(params[Index.obsprob], simH[i], data[i][1], 1)//;ar.push([likvalue])
+    var simH = integrate(params, times, deltaT)
+    simHarranged[0] = simH[0]
+    var aa = []
+    for ( let i = 1; i < simH.length; i++) {
+      simHarranged[i -1] = simH[i] - simH[i - 1]
+      aa.push([i , simHarranged[i -1]])
+    }
+    for (let i = 0; i < simHarranged.length; i++) {
+      likvalue = snippet.dObs(params[Index.obsprob], simHarranged[i], data[i][1], 1)//;ar.push([likvalue])
       loglik = loglik + likvalue
     }
-    // console.log(params, loglik)
-  //   const createCsvWriter = require('csv-writer').createArrayCsvWriter;
-  // const csvWriter = createCsvWriter({
-  //   header: [],
-  //   path: './logall.csv'
-  // })   
-  // csvWriter.writeRecords(ar)
-  //   .then(() => {
-  //   console.log('...Done')
-  // })
+    console.log(params, loglik)
     return [-(loglik).toFixed(6)]
   }
   // return[params, -solution.fx]
 }
-
  //* ODE solver
-function integrate (interpolTemperature, params, times, deltaT) {
+function integrate (params, times, deltaT) {
   let steps = 10// Total number of steps in the each interval.
   let t0 = times[0]
   let dataStartTime = Number(times[1].toFixed(6))
   let dataEndTime = times[2]
-  let arr = [] ,arr2 =[]
+  let arr = []
   let timetemp
   let Npre
-  let dt, count
-  let N = snippet.rInit(params)
+  let dt = deltaT 
+  let count
+  let N = snippet.rInit(params)//; console.log(N)
   let casesPlace = N.length - 1
   let k = t0 
   let flag = 0
-
-  dt = deltaT
-  Module['onRuntimeInitialized'] = function() {
-    let inputArray = Array(40).fill('number')
-    let lsodaTem = Module.cwrap('run_me', 'number', [])
-    var nByte = 8
-    var length = 15 
-    var buffer = Module._malloc(length * nByte);
-    var buffer = Module._malloc(length*nByte)
-    for ( let it = 0; it < 200; it += deltaT){ 
-      lsodaTem(...N,buffer, length, it, interpolTemperature(it))
-      for (var i = 1; i < 15; i++) {
-        N[i - 1] = Module.getValue(buffer+i*nByte, 'double') 
-      // console.log("js",Module.getValue(buffer+i*nByte, 'double'));
-      }
-      
-      arr.push(N[casesPlace])
-      arr2.push([it,...N])
-    }
-  const createCsvWriter = require('csv-writer').createArrayCsvWriter
-  let csvWriter = createCsvWriter({
-    header:[],
-    path:'./results.csv'
-  })
-  csvWriter.writeRecords(arr2)
-    
-  }  
-  // while ( flag === 0 ) {
-  //   Npre = N
-  //   for (let stp = 0; stp < steps; stp++) { 
-  //     gam = stp / steps * dt
-  //     N = mathLib.odeMethod('euler', snippet.skeleton, N, k + gam , 1 / steps * dt, params, interpolTemperature)
-  //   }//console.log(k,N)
-  //   timetemp = k
-  //   k += dt
-    
-  //   if (k - 1e-8 > dataStartTime) {  // telorance of 1e-8 to cover the machine error.
-  //     k = timetemp
-  //     dt = dataStartTime - timetemp ;
-  //     N = Npre
-  //   }
-  //   if (k >= dataStartTime) {  
-  //     k = timetemp + dt
-  //     flag = 1
-  //     arr.push(N[casesPlace])
-  //     arr2.push([k,...N])
-  //   }
-  // }
-  // count = 0
-  // while (k < dataEndTime) {
-  //   k2 = data[count + 1][0]
-  //   if (k2 !== "undefined") {
-  //     dt = k2 - data[count][0]
-  //   } else {
-  //     dt = deltaT
-  //   }
-  //   N[casesPlace] = 0
-    
-  //   for (let stp = 0; stp < steps; stp++) { 
-  //     gam = stp / steps * dt
-  //     N = mathLib.odeMethod('euler', snippet.skeleton, N, k + gam , 1 / steps * dt, params, interpolTemperature)
-  //   }
-  //   steps = 200; 
-  //   k = k2
-  //   count++
-  //   arr.push(N[casesPlace])
-  //   arr2.push([k,...N])
-  // }
-  // const createCsvWriter = require('csv-writer').createArrayCsvWriter;
-  // const csvWriter = createCsvWriter({
-  //   header: ['time','E0', 'QL0', 'EL_s0', 'EL_i0', 'QN_s0',
-  //     'QN_i0', 'EN_s0', 'EN_i0', 'QA_s0', 'QA_i0','EA0', 'H_s0',  'H_i0','cases'],
-  //   // ['p', 'omega', 'delta', 'mu_e', 'mu_ql', 'mu_el', 'mu_qn', 'mu_en', 'mu_qa', 'mu_ea', 'mu_h', 'beta_nh', 'beta_hl', 'beta_hn', 'lambda_l',
-  //   //  'lambda_n', 'lambda_a','alpha', 'f_l', 'f_n', 'f_a', 'kappa', 'c', 'Tf', 'obsprob', 'T_min_l', 'gamma', 'E0', 'QL0', 'EL_s0', 'EL_i0', 'QN_s0',
-  //   //   'QN_i0', 'EN_s0', 'EN_i0', 'QA_s0', 'QA_i0','EA0', 'H_s0',  'H_i0'],
-  //   path: './resall1.csv'
-  // })   
-  // csvWriter.writeRecords(arr2)
-  //   .then(() => {
-  //   console.log('...Done')
-  // })
+  
+  let inputArray = Array(40).fill('number') 
+  lsodaTem = Module.cwrap('run_me', "number", inputArray);
+  var nByte = 8
+  var lengthBuffer = 937
+  var buffer = Module._malloc(lengthBuffer * nByte)
+  lsodaTem(lengthBuffer, buffer, ...N, ...params);
+  for (var i = 0; i < lengthBuffer; i++) {
+    arr.push(Module.getValue(buffer+i*nByte, 'double'))//; console.log(arr[i])
+  }
   return arr
 }
-
-// for ( let id = 0; id < params.length; id++) {
-  
-//   res.push(traj_match (interpolPopulation, interpolBirth, data, params[id], times, index))
-// }
+ 
 
 
+/** Main program entry point */
+function main() {
+  traj_match (data, params, times, index, place)
+}
 
+/* Run main only when emscripten is ready */
+Module.onRuntimeInitialized = main
+
+/*emcc lsoda.c -o lsoda.js -s  EXPORTED_FUNCTIONS='["_run_me"]' -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap","getValue"]' -s EXIT_RUNTIME=1
+*/

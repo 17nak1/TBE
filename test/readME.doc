@@ -1,0 +1,117 @@
+﻿Emscripten
+
+Download and install  it in Linux
+
+# Install Python
+sudo apt-get install python2.7
+
+# Install CMake (optional, only needed for tests and building Binaryen)
+sudo apt-get install cmake
+
+# Install Java (optional, only needed for Closure Compiler minification)
+sudo apt-get install default-jre
+
+
+Update:
+
+# Fetch the latest registry of available tools.
+./emsdk update
+
+# Download and install the latest SDK tools.
+./emsdk install latest
+
+# Set up the compiler configuration to point to the "latest" SDK.
+./emsdk activate latest
+
+# Activate PATH and other environment variables in the current terminal
+source ./emsdk_env.sh
+
+code.c 
+to run it in the terminal use
+1- > gcc code.c
+ 
+2- make a file makeFile (no dot or anything) and inside:
+--------------------
+code: code.o
+clean:
+	$(RM) code code.o
+--------------------
+then in the terminal respectively:
+> make
+> ./code
+
+for transpiling code.c to JS
+> emcc code.c -o code.js -s  EXPORTED_FUNCTIONS='["_mainFunctionNameInC"]' -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap","getValue"]'
+
+above command will create code.js which is like a module and call it in your example.js 
+Module = require(‘./code.js’)
+Also when you want to use the Module you need to write in 
+Module['onRuntimeInitialized'] = function() {
+ ......
+} 
+and then use Module.cwrap to call the function.
+
+Example1)
+in C:
+float sqrtplus(float x1, float x2, float x3, float x4) {
+  return sqrt(x1) + x2 + x3 + x4;
+}
+
+double sqrtplus(float *x) {
+  printf("%f\n", x[1]);
+  return x[1];
+}
+
+/*emcc hello_function.c -s EXPORTED_FUNCTIONS='["_sqrtplus"]' -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]'
+*/
+
+in JS:
+ Module['onRuntimeInitialized'] = function() {
+   let sqrtplus = Module.cwrap('sqrtplus', 'number',         ['number','number','number','number'])
+   console.log(sqrtplus(10,1,2,3))
+ };
+
+Example2) return output as an array
+in C:
+void fillArray(double * a, double * b, int len)
+{
+  for (int i = 0; i<len; i++)
+  {
+    a[i] = 2.1E1 *i;
+    b[i] = .01 * i;
+  }
+  for (int j = 0; j < len; ++j)
+  {
+    printf("a[%d] = %f\n", j, b[j]);
+  }
+}
+/*emcc hello_function.c -s EXPORTED_FUNCTIONS='["_fillArray"]' -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap", "getValue"]'*/
+in JS:
+Module['onRuntimeInitialized'] = function() {
+  fillArray = Module.cwrap('fillArray', null, ['number', 'number']);
+  var nByte = 8
+  var length = 5 
+  var buffer = Module._malloc(length*nByte);
+
+  var buffer2 = Module._malloc(length*nByte);
+  fillArray(buffer, buffer2, length);
+  for (var i = 0; i < length; i++)
+  {
+    console.log(Module.getValue(buffer+i*nByte, 'double'));
+  }
+  for (var i = 0; i < length; i++)
+  {
+    console.log(Module.getValue(buffer2+i*nByte,'double'));
+  }
+}    
+ 
+
+https://github.com/emscripten-core/emsdk
+https://emscripten.org/docs/getting_started/downloads.html#sdk-download-and-install
+https://emscripten.org/docs/getting_started/Tutorial.html
+https://emscripten.org/docs/getting_started/FAQ.html
+
+
+
+
+

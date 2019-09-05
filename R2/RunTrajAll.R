@@ -158,7 +158,7 @@ run = 1
       ss <- sets.traj@states
       setwd("~/Git/TBE")
       nn= 1
-      write.csv(ss,"cases.csv")
+      write.csv(ss[14,],"cases.csv")
       res <- read.csv("resall1.csv")
       tt <-  sets.traj@times
       E <-  c()
