@@ -9,6 +9,7 @@
  *  @date       July 2019
  */
 
+let newDate = new Date()
 let snippet = require('./modelSnippet.js')
 let model = require('./createModel')
 let create  = require('./create.js')
@@ -18,6 +19,7 @@ let DetermineRun = require('./determineRun')
 let fmin    = require('fmin')
 let fs = require('fs')
 const Module = require('./lsoda.js')
+let Main = require('./subplex/subplex.js');
 /************************************************************ Will be defined in ui ************************************************/
 let dt = 0.005 // Step size only use in covar
 let startTime = 1991
@@ -29,13 +31,14 @@ let run = 1;
 // Parameters that is consider always fixed
 let paramsIcFixed = snippet.statenames()
 let paramsFixed =[Index.p, Index.delta, Index.mu_e, Index.mu_ql, Index.mu_el, Index.mu_qn, Index.mu_en, Index.mu_qa, Index.mu_ea,
-          Index.mu_h, Index.beta_nh, Index.beta_hn, Index.beta_hl, Index.alpha, Index.c, Index.Tf, Index.gamma, ...paramsIcFixed]
+          Index.mu_h, Index.beta_nh, Index.beta_hl, Index.beta_hn, Index.alpha, Index.c, Index.Tf, Index.gamma]
 
 // Parameters not to be transformed
-let paramsNotrans = [].concat(paramsFixed)              
+// let paramsNotrans = [].concat(paramsFixed)  
+              
 let ParamSetFile, paramProf
 if (run === 1) {
-  ParamSetFile = "./ParamSet_TBENAN.csv" 
+  ParamSetFile = "./ParamSet_TBE3.csv" 
   paramProf = null 
 } else {
   ParamSetFile = `ParamSet_run${run}.csv`    
@@ -46,6 +49,7 @@ paramsFixed = [...paramsFixed, paramProf]
 paramsNoic = [Index.p, Index.omega, Index.delta, Index.mu_e, Index.mu_ql, Index.mu_el, Index.mu_qn, Index.mu_en, Index.mu_qa,
               Index.mu_ea, Index.mu_h, Index.beta_nh, Index.beta_hl,Index.beta_hn, Index.lambda_l, Index.lambda_n, Index.lambda_a,
               Index.alpha, Index.f_l, Index.f_n, Index.f_a,  Index.kappa, Index.c,Index.Tf, Index.obsprob, Index.T_min_l,Index.gamma]
+
 paramsIc  = snippet.statenames()
 
 // paramsFit =  paramsNoic - paramfixed
@@ -80,8 +84,14 @@ for (let i = 0; i < paramsIc.length; i++) {
 flag = 0
 }
 
+
+// let estimatedIndex = [...paramsFit, ...paramsIcFit]
+let covars = create.covars(startTime, endTime, dt)
+let data = create.dataset(startTime, endTime)
+let temp = model.createPompModel(data, covars, 0, 0.005, paramsFixed)
+temp = [...temp[0], ...temp[1]]
+let estimatedIndex = temp.sort()
 let index = Array(40).fill(0)
-let estimatedIndex = [...paramsFit, ...paramsIcFit]
 for ( let i = 0; i < estimatedIndex.length; i++) {
   index[estimatedIndex[i]] = 1
 }
@@ -94,8 +104,8 @@ for (let i = 0; i < lines.length; i++) {
 }
 
 // Generate covars and data  
-let covars = create.covars(startTime, endTime, dt)
-let data = create.dataset(startTime, endTime)
+// let covars = create.covars(startTime, endTime, dt)
+// let data = create.dataset(startTime, endTime)
 let times = [0, data[0][0], data[data.length - 1][0]]
 
 let t0 = times[0]
@@ -117,23 +127,26 @@ function traj_match (data, params, times, index, place) {
   var data1 = []
   var data2 = []
   var solution
-  
   // Index of parameters that need to be transfered
-  let temp = model.createPompModel(data, covars, t0 = 0, dt = 0.005, paramsNotrans)
+  let temp = model.createPompModel(data, covars, 0, 0.005, paramsFixed)
   let logTrans = temp[0]
   let logitTrans = temp[1]
-  
   // Change the parameters' scale 
-  model.toEstimationScale(params, logTrans, logitTrans)
+  let toScale = model.toEstimationScale(params, logTrans, logitTrans)
  
   // Choose those that should be estimated.
   for (let i = 0; i < index.length; i++) {
     if (index[i] === 1 ) {
-      estimated.push(params[i])
+      estimated.push(toScale[i])
     }
   }
-  console.log(estimated)
+  
   //* Optimizer function using Nelder Mead method
+  Main.f = logLik
+  Main.x0 = estimated;//console.log(estimated)
+  Main.tol = 0.00000000000001
+  Main.run()
+  // console.log(estimated,logLik)
   solution = fmin.nelderMead(logLik,estimated )
   // logLik (estimated)
   
@@ -141,25 +154,26 @@ function traj_match (data, params, times, index, place) {
   function logLik (estimated) {
     var likvalue = 0
     var loglik = 0
-    var rho 
-    var psi
+    var tLength = 936 
     var simHarranged = []
+    
     for (let i = 0; i < estimated.length; i++) {
       params[place[i]] = estimated[i]
     }
 
     // Return parameters' scale to original
-    model.fromEstimationScale(params, logTrans, logitTrans)
-    
-    var simH = integrate(params, times, deltaT)
+    params = model.fromEstimationScale(params, logTrans, logitTrans)
+    // console.log(params)
+    var simH = integrate(params, tLength, deltaT)
     simHarranged[0] = simH[0]
     var aa = []
     for ( let i = 1; i < simH.length; i++) {
       simHarranged[i -1] = simH[i] - simH[i - 1]
       aa.push([i , simHarranged[i -1]])
     }
+
     for (let i = 0; i < simHarranged.length; i++) {
-      likvalue = snippet.dObs(params[Index.obsprob], simHarranged[i], data[i][1], 1)//;ar.push([likvalue])
+      likvalue = snippet.dObs(params[Index.obsprob], simHarranged[i], data[i][1], 1)
       loglik = loglik + likvalue
     }
     console.log(params, loglik)
@@ -168,29 +182,19 @@ function traj_match (data, params, times, index, place) {
   // return[params, -solution.fx]
 }
  //* ODE solver
-function integrate (params, times, deltaT) {
-  let steps = 10// Total number of steps in the each interval.
-  let t0 = times[0]
-  let dataStartTime = Number(times[1].toFixed(6))
-  let dataEndTime = times[2]
+function integrate (params, tLength, deltaT) {
   let arr = []
-  let timetemp
-  let Npre
-  let dt = deltaT 
-  let count
-  let N = snippet.rInit(params)//; console.log(N)
-  let casesPlace = N.length - 1
-  let k = t0 
-  let flag = 0
-  
-  let inputArray = Array(40).fill('number') 
-  lsodaTem = Module.cwrap('run_me', "number", inputArray);
-  var nByte = 8
-  var lengthBuffer = 937
-  var buffer = Module._malloc(lengthBuffer * nByte)
-  lsodaTem(lengthBuffer, buffer, ...N, ...params);
+  let buffer
+  let N = snippet.rInit(params)  
+  let inputArray = Array(40).fill('number')
+  let nByte = 8
+  let lengthBuffer = tLength + 1 // extra space for t0  
+
+  lsodaTem = Module.cwrap('run_me', "number", inputArray)
+  buffer = Module._malloc(lengthBuffer * nByte)
+  lsodaTem(lengthBuffer, buffer, ...N, ...params, deltaT)
   for (var i = 0; i < lengthBuffer; i++) {
-    arr.push(Module.getValue(buffer+i*nByte, 'double'))//; console.log(arr[i])
+    arr.push(Module.getValue(buffer + i * nByte, 'double'))//; console.log(arr[i])
   }
   return arr
 }
@@ -200,6 +204,7 @@ function integrate (params, times, deltaT) {
 /** Main program entry point */
 function main() {
   traj_match (data, params, times, index, place)
+  console.log((new Date - newDate)/1000)
 }
 
 /* Run main only when emscripten is ready */

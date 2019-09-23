@@ -11,7 +11,7 @@ dObs <- Csnippet("
                  } else {
                  lik = (give_log) ? 0 : 1;
                  }
-                 printf(\" %f \\n \",lik);
+                 //printf(\" %f \\n \",lik);
                  ")
 
 rObs <- Csnippet("

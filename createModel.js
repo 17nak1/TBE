@@ -14,13 +14,12 @@ let createModel = {}
 createModel.createPompModel = function(data, covars, t0, dt = 0.005, params_notransform = null) { 
 
   let statenames = snippet.statenames()
-  trans1 = [Index.p,Index.omega,Index.delta, Index.mu_e,Index.mu_ql, Index.mu_el,
+  let trans1 = [Index.p,Index.omega,Index.delta, Index.mu_e,Index.mu_ql, Index.mu_el,
               Index.mu_qn,Index.mu_en,Index.mu_qa,Index.mu_ea,Index.mu_h, Index.beta_nh,
               Index.lambda_l,Index.lambda_n,Index.lambda_a,Index.alpha, Index.kappa, Index.Tf, Index.T_min_l, Index.gamma]
-  for ( let i = 0; i < 11; i++) {
-    trans1.push(statenames[i])
-  }
-  
+  // for ( let i = 0; i < 11; i++) {
+  //   trans1.push(statenames[i])
+  // }
   // Remove parameters in trans1 that exist in params_notransform.
   for ( let i = 0; i < trans1.length; i++) {
     for ( let j = 0; j < params_notransform.length; j++) {
@@ -31,7 +30,7 @@ createModel.createPompModel = function(data, covars, t0, dt = 0.005, params_notr
     }
   }
 
-  trans2 = [Index.f_l,Index.f_n,Index.f_a,Index.c]
+  let trans2 = [Index.f_l,Index.f_n,Index.f_a,Index.c]
   // Remove parameters in trans2 that exist in params_notransform.
   for ( let i = 0; i < trans2.length; i++) {
     for ( let j = 0; j < params_notransform.length; j++) {
@@ -41,35 +40,40 @@ createModel.createPompModel = function(data, covars, t0, dt = 0.005, params_notr
       }
     }
   }
-
   // Trans1 uses log and trans2 uses logit 
-  return [trans1, trans2]
+  return [[1], trans2]//[trans1, trans2]
 
 }  
-createModel.fromEstimationScale = function(params, logTrans, logitTrans){
+createModel.fromEstimationScale = function(params, logTrans, logitTrans){ 
+  let fromScale = [].concat(params)
   for ( let i = 0; i < logTrans.length; i++) {
-    params[logTrans [i]] = Math.exp(params[logTrans[i]])
+    fromScale[logTrans [i]] = Math.exp(params[logTrans[i]])
   }
+
   for ( let i = 0; i < logitTrans.length; i++) {
-    params[logitTrans [i]] = mathLib.plogis(params[logitTrans[i]])
+    fromScale[logitTrans [i]] = mathLib.plogis(params[logitTrans[i]])
   }      
-  let sumH = Math.exp(params[Index.H_s]) + Math.exp(params[Index.H_i])
-  params[Index.H_s] = Math.exp(params[Index.H_s]) / (1 + sumH)
-  params[Index.H_i] = Math.exp(params[Index.H_i]) / (1 + sumH)
-  return params
+  let sumH = Math.exp(params[Index.H_s]) + Math.exp(params[Index.H_i]);
+  fromScale[Index.H_s] = Math.exp(params[Index.H_s]) / (1 + sumH)
+  fromScale[Index.H_i] = Math.exp(params[Index.H_i]) / (1 + sumH)
+
+  return fromScale
 } 
 
 createModel.toEstimationScale = function(params, logTrans, logitTrans){
+  let toScale = [].concat(params)
   for ( let i = 0; i < logTrans.length; i++) {
-    params[logTrans [i]] = Math.log(params[logTrans[i]])
+    toScale[logTrans [i]] = Math.log(params[logTrans[i]])
+    // console.log(logTrans,toScale,params[logTrans[i]])
   }
+
   for ( let i = 0; i < logitTrans.length; i++) {
-    params[logitTrans [i]] = mathLib.qlogis(params[logitTrans[i]])
+    toScale[logitTrans [i]] = mathLib.qlogis(params[logitTrans[i]])
   }      
   let sumH = params[Index.H_s] + params[Index.H_i]
-  params[Index.H_s] = Math.log(params[Index.H_s] / (1 - sumH))
-  params[Index.H_i] = Math.log(params[Index.H_i] / (1 - sumH))
-  return params
+  toScale[Index.H_s] = Math.log(params[Index.H_s] / (1 - sumH))
+  toScale[Index.H_i] = Math.log(params[Index.H_i] / (1 - sumH))
+  return toScale
 }   
 
 

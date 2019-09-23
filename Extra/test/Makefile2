@@ -1,0 +1,5 @@
+
+interpolate: interpolate.o
+
+clean:
+	$(RM) interpolate interpolate.o
