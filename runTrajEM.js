@@ -118,7 +118,7 @@ let params = []
 for ( let i = 0; i < fullset[0].length; i++) {
   params.push(Number(fullset[1][i]))
 }
-console.log(params)
+// console.log(params)
 /**************************************************************************************************************************************************/
 function traj_match (data, params, times, index, place) {
   let deltaT = (1 / 52) * 365
@@ -177,7 +177,7 @@ function traj_match (data, params, times, index, place) {
       likvalue = snippet.dObs(params[Index.obsprob], simHarranged[i], data[i][1], 1)
       loglik = loglik + likvalue
     }
-    console.log(params, loglik)
+    // console.log(params, loglik)
     return [-(loglik).toFixed(6)]
   }
   // return[params, -solution.fx]
