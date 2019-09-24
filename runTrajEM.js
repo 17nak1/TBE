@@ -178,7 +178,7 @@ function traj_match (data, params, times, index, place) {
       loglik = loglik + likvalue
     }
     console.log(params, loglik)
-    return [(loglik).toFixed(6)]
+    return [-(loglik).toFixed(6)]
   }
   // return[params, -solution.fx]
 }
