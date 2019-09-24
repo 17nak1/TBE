@@ -45,10 +45,8 @@ dArray.prototype.clone = function(base,u1,u2) {
     return new dArray(this.base + base - 1,u1,u2,this.arr);
 };
 
-// module.exports = dArray;
+module.exports = dArray;
 
 Array.prototype.dArray = function(base,u1,u2) {
     return new dArray(base,u1,u2,this);
 };
-
-module.exports = dArray;

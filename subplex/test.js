@@ -43,12 +43,12 @@ let Main = require('./subplex.js');
 // mode = 4 * mdsing + 2 * mduser + mdcont;
 
 Main.f = function (n,x) {  
-  let x1, sum = 0
-  for (let i = 1; i <= n; i++) {
-    sum += x[i]**2
-  }
-  return sum
+   let x1 = x[1]
+   let x2 = x[2]
+  return 100*(x2-x1*x1)**2+(1-x1)**2
+
 }
-Main.x0 = new Array(10).fill(1) //[1,-1,2,-2,3,3,-1,-15,70,1,-1,2,-2,3,3,-1,-15,70];
-Main.tol = 0.00000000000001
+Main.x0 = [11,-33];
 Main.run()
+
+console.log('aaaaaaaaa')

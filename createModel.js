@@ -41,7 +41,7 @@ createModel.createPompModel = function(data, covars, t0, dt = 0.005, params_notr
     }
   }
   // Trans1 uses log and trans2 uses logit 
-  return [[1], trans2]//[trans1, trans2]
+  return [[1],[]]//[trans1, trans2]
 
 }  
 createModel.fromEstimationScale = function(params, logTrans, logitTrans){ 

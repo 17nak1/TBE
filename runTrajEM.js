@@ -38,7 +38,7 @@ let paramsFixed =[Index.p, Index.delta, Index.mu_e, Index.mu_ql, Index.mu_el, In
               
 let ParamSetFile, paramProf
 if (run === 1) {
-  ParamSetFile = "./ParamSet_TBE3.csv" 
+  ParamSetFile = "./R2/ParamSet_TBE3.csv" 
   paramProf = null 
 } else {
   ParamSetFile = `ParamSet_run${run}.csv`    
@@ -118,6 +118,7 @@ let params = []
 for ( let i = 0; i < fullset[0].length; i++) {
   params.push(Number(fullset[1][i]))
 }
+console.log(params)
 /**************************************************************************************************************************************************/
 function traj_match (data, params, times, index, place) {
   let deltaT = (1 / 52) * 365
@@ -140,14 +141,14 @@ function traj_match (data, params, times, index, place) {
       estimated.push(toScale[i])
     }
   }
-  
-  //* Optimizer function using Nelder Mead method
+
+  // //* Optimizer function using Nelder Mead method
   Main.f = logLik
   Main.x0 = estimated;//console.log(estimated)
-  Main.tol = 0.00000000000001
+  Main.tol = 0.1
   Main.run()
   // console.log(estimated,logLik)
-  solution = fmin.nelderMead(logLik,estimated )
+  // solution = fmin.nelderMead(logLik,estimated )
   // logLik (estimated)
   
   //* calculate log likelihood
@@ -163,7 +164,7 @@ function traj_match (data, params, times, index, place) {
 
     // Return parameters' scale to original
     params = model.fromEstimationScale(params, logTrans, logitTrans)
-    // console.log(params)
+    
     var simH = integrate(params, tLength, deltaT)
     simHarranged[0] = simH[0]
     var aa = []
@@ -177,7 +178,7 @@ function traj_match (data, params, times, index, place) {
       loglik = loglik + likvalue
     }
     console.log(params, loglik)
-    return [-(loglik).toFixed(6)]
+    return [(loglik).toFixed(6)]
   }
   // return[params, -solution.fx]
 }
@@ -194,7 +195,7 @@ function integrate (params, tLength, deltaT) {
   buffer = Module._malloc(lengthBuffer * nByte)
   lsodaTem(lengthBuffer, buffer, ...N, ...params, deltaT)
   for (var i = 0; i < lengthBuffer; i++) {
-    arr.push(Module.getValue(buffer + i * nByte, 'double'))//; console.log(arr[i])
+    arr.push(Module.getValue(buffer + i * nByte, 'double'))
   }
   return arr
 }

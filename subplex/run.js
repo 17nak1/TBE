@@ -12,7 +12,7 @@ let run = function(){
     this.iwork = new Array(2*(this.n))
 
     this.subplx (this.f,this.n,this.tol,this.maxnfe,this.scale.dArray(),this.x0.dArray(),this.fx,this.nfe,this.work.dArray(),this.iwork.dArray(),this.iflag)
-    console.log("results=", this.fx, this.x0.dArray())
+
     switch (this.iflag) {
         case -1:
             console.log('number of function evaluations exceeds \'maxit\'');
