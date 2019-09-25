@@ -152,14 +152,14 @@ function traj_match (data, params, times, index, place) {
   // logLik (estimated)
   
   //* calculate log likelihood
-  function logLik (estimated) {
+  function logLik (n,estimated) {
     var likvalue = 0
     var loglik = 0
     var tLength = 936 
     var simHarranged = []
     
-    for (let i = 0; i < estimated.length; i++) {
-      params[place[i]] = estimated[i]
+    for (let i = 0; i < n; i++) {
+      params[place[i]] = estimated[i+1]
     }
 
     // Return parameters' scale to original
@@ -178,7 +178,7 @@ function traj_match (data, params, times, index, place) {
       loglik = loglik + likvalue
     }
     // console.log(params, loglik)
-    return [-(loglik).toFixed(6)]
+    return -(loglik).toFixed(6)
   }
   // return[params, -solution.fx]
 }
