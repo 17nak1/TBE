@@ -48,7 +48,7 @@ let calcc = function(ns,s,ih,inew,updatc,c) {
       }
       this.dscal (ns,1/ns,c,1) 
     }
-  console.log(c)  
+  // console.log(c)  
 } 
 
 module.exports = calcc;

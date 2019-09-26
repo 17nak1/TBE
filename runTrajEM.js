@@ -1,5 +1,5 @@
 /**
- *  @file       runTraj.js        
+ *  @file       runTrajEm.js        
  *              This function attempts to match trajectories of a model's deterministic skeleton to data.
  *              Trajectory matching is equivalent to maximum likelihood estimatedation under the assumption 
  *              that process noise is entirely absent, i.e., that all stochasticity is measurement error.
@@ -9,7 +9,7 @@
  *  @date       July 2019
  */
 
-let newDate = new Date()
+
 let snippet = require('./modelSnippet.js')
 let model = require('./createModel')
 let create  = require('./create.js')
@@ -19,7 +19,7 @@ let DetermineRun = require('./determineRun')
 let fmin    = require('fmin')
 let fs = require('fs')
 const Module = require('./lsoda.js')
-let Main = require('./subplex/subplex.js');
+let optimizer = require('./subplex/subplex.js');
 /************************************************************ Will be defined in ui ************************************************/
 let dt = 0.005 // Step size only use in covar
 let startTime = 1991
@@ -28,13 +28,12 @@ let estIcstart = [0] // Are there no initial conditions given? 0-Given, 1-No, 2-
 let run = 1; 
 
 
-// Parameters that is consider always fixed
+/* Parameters that is consider always fixed */
 let paramsIcFixed = snippet.statenames()
 let paramsFixed =[Index.p, Index.delta, Index.mu_e, Index.mu_ql, Index.mu_el, Index.mu_qn, Index.mu_en, Index.mu_qa, Index.mu_ea,
           Index.mu_h, Index.beta_nh, Index.beta_hl, Index.beta_hn, Index.alpha, Index.c, Index.Tf, Index.gamma]
 
-// Parameters not to be transformed
-// let paramsNotrans = [].concat(paramsFixed)  
+/*paramsNotrans := (paramsFixed)  */
               
 let ParamSetFile, paramProf
 if (run === 1) {
@@ -52,7 +51,7 @@ paramsNoic = [Index.p, Index.omega, Index.delta, Index.mu_e, Index.mu_ql, Index.
 
 paramsIc  = snippet.statenames()
 
-// paramsFit =  paramsNoic - paramfixed
+// paramsFit :=  paramsNoic - paramfixed
 let paramsFit = []
 let flag = 0
 for (let i = 0; i < paramsNoic.length; i++) {
@@ -84,11 +83,12 @@ for (let i = 0; i < paramsIc.length; i++) {
 flag = 0
 }
 
-
-// let estimatedIndex = [...paramsFit, ...paramsIcFit]
 let covars = create.covars(startTime, endTime, dt)
 let data = create.dataset(startTime, endTime)
 let temp = model.createPompModel(data, covars, 0, 0.005, paramsFixed)
+/* Index of parameters that need to be transfered */
+let logTrans = temp[0]
+let logitTrans = temp[1]
 temp = [...temp[0], ...temp[1]]
 let estimatedIndex = temp.sort()
 let index = Array(40).fill(0)
@@ -103,22 +103,12 @@ for (let i = 0; i < lines.length; i++) {
   fullset.push(lines[i].split(','))
 }
 
-// Generate covars and data  
-// let covars = create.covars(startTime, endTime, dt)
-// let data = create.dataset(startTime, endTime)
 let times = [0, data[0][0], data[data.length - 1][0]]
 
 let t0 = times[0]
 let dataStartTime = times[1]
 let dataEndTime = times[2]
 
-
-//only read the first test as an example
-let params = []
-for ( let i = 0; i < fullset[0].length; i++) {
-  params.push(Number(fullset[1][i]))
-}
-// console.log(params)
 /**************************************************************************************************************************************************/
 function traj_match (data, params, times, index, place) {
   let deltaT = (1 / 52) * 365
@@ -127,62 +117,57 @@ function traj_match (data, params, times, index, place) {
   var states = []
   var data1 = []
   var data2 = []
+  var flagStates = 1
   var solution
-  // Index of parameters that need to be transfered
-  let temp = model.createPompModel(data, covars, 0, 0.005, paramsFixed)
-  let logTrans = temp[0]
-  let logitTrans = temp[1]
-  // Change the parameters' scale 
-  let toScale = model.toEstimationScale(params, logTrans, logitTrans)
- 
-  // Choose those that should be estimated.
+  /* Change the parameters' scale  */
+  params = model.toEstimationScale(params, logTrans, logitTrans,flagStates)
+
+  /* Choose values that should be estimated */
   for (let i = 0; i < index.length; i++) {
     if (index[i] === 1 ) {
-      estimated.push(toScale[i])
+      estimated.push(params[i])
     }
   }
+  /* Optimizer function using Nelder Mead method */
+  optimizer.f = logLik
+  optimizer.x0 = estimated;console.log("ES",estimated)
+  optimizer.tol = 0.1
+  solution = optimizer.run()
+  for (let i = 0; i < optimizer.x0.length; i++) {  // fortran array start at one => estimated[i+1] 
+    params[place[i]] = solution[0][i]
+  }
+  params = model.fromEstimationScale(params, logTrans, logitTrans,flagStates)
+  console.log(params, -solution[1])
 
-  // //* Optimizer function using Nelder Mead method
-  Main.f = logLik
-  Main.x0 = estimated;//console.log(estimated)
-  Main.tol = 0.1
-  Main.run()
-  // console.log(estimated,logLik)
-  // solution = fmin.nelderMead(logLik,estimated )
-  // logLik (estimated)
-  
-  //* calculate log likelihood
+  /* calculate log likelihood */
   function logLik (n,estimated) {
     var likvalue = 0
     var loglik = 0
     var tLength = 936 
     var simHarranged = []
-    
-    for (let i = 0; i < n; i++) {
+    var simH
+    for (let i = 0; i < n; i++) {  // fortran array start at one => estimated[i+1] 
       params[place[i]] = estimated[i+1]
     }
 
-    // Return parameters' scale to original
-    params = model.fromEstimationScale(params, logTrans, logitTrans)
-    
-    var simH = integrate(params, tLength, deltaT)
+    /* Return parameters' scale to original */
+    params = model.fromEstimationScale(params, logTrans, logitTrans,0)
+    simH = integrate(params, tLength, deltaT)
     simHarranged[0] = simH[0]
-    var aa = []
     for ( let i = 1; i < simH.length; i++) {
       simHarranged[i -1] = simH[i] - simH[i - 1]
-      aa.push([i , simHarranged[i -1]])
     }
 
     for (let i = 0; i < simHarranged.length; i++) {
       likvalue = snippet.dObs(params[Index.obsprob], simHarranged[i], data[i][1], 1)
       loglik = loglik + likvalue
     }
-    // console.log(params, loglik)
+    console.log(params,loglik)
     return -(loglik).toFixed(6)
   }
-  // return[params, -solution.fx]
+  return[...params, -solution[1]]
 }
- //* ODE solver
+ /* ODE solver using emscripten */
 function integrate (params, tLength, deltaT) {
   let arr = []
   let buffer
@@ -197,16 +182,35 @@ function integrate (params, tLength, deltaT) {
   for (var i = 0; i < lengthBuffer; i++) {
     arr.push(Module.getValue(buffer + i * nByte, 'double'))
   }
+  Module._free(buffer)
   return arr
 }
  
 
-
 /** Main program entry point */
 function main() {
-  traj_match (data, params, times, index, place)
-  console.log((new Date - newDate)/1000)
-}
+  let resultSet = [], result
+
+  for(let count = 2; count < 3; count++) {
+    var params = []
+    for ( let i = 0; i < fullset[0].length; i++) {
+      params.push(Number(fullset[count][i]))
+    }
+    result = traj_match (data, params, times, index, place)
+    
+    resultSet.push(result)
+  }
+const createCsvWriter = require('csv-writer').createArrayCsvWriter;
+  const csvWriter = createCsvWriter({
+    header: [],
+    path: './TBEres1.csv'
+  })   
+  csvWriter.writeRecords(resultSet)
+    .then(() => {
+    console.log('...Done')
+  })
+}    
+
 
 /* Run main only when emscripten is ready */
 Module.onRuntimeInitialized = main

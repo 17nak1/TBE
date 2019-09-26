@@ -1,5 +1,5 @@
 rm(list=ls())
-setwd("C:/Users/Felicia/Dropbox/R/Pomp/TBE12")
+mainDir="/home/nazila/Git/TBE/R2"
 source("SetValues.R")
 library(RColorBrewer)
 library(xtable)
@@ -25,7 +25,7 @@ cutoff <- qchisq(p=0.95,df=1)/2
 ymin <- -1320
 ymax <- -1280
 table_MLE <- NULL
-
+run=3
 for (run in runs) {
   
   table_values <- NULL
@@ -40,7 +40,7 @@ for (run in runs) {
   print(param)
   setwd(mainDir)
   
-  file <- paste0("TBE_all.csv")
+  file <- paste0("allr.csv")
   print(file)
   dataset <- read.table(file, header=TRUE,sep=",")
   
@@ -80,10 +80,10 @@ for (run in runs) {
     }
   }  
   # k0 <- f(x0)
-  temp <- optimize(f,lower=(1-theta)*x0 + theta*param_lims[1],
-                   upper=(1-theta)*x0 + theta*param_lims[2],maximum=TRUE)
-    
-  rm(temp)
+  # temp <- optimize(f,lower=(1-theta)*x0 + theta*param_lims[1],
+  #                  upper=(1-theta)*x0 + theta*param_lims[2],maximum=TRUE)
+  #   
+  # rm(temp)
     
   if (lscale==1) {
     param_array <- exp(seq(log10(min(param_profile[,param])),log10(max(param_profile[,param])),length=10*no_profile))

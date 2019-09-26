@@ -1,7 +1,7 @@
 
 let Index = require('./indices')
-let determineRun = {}
-determineRun.type = function(run) {
+
+exports.type = function(run) {
   let param, lscale, param_lims, flag_bound, ind_inc, ind_mult, s, final
   if (run === 2) {
     param = Index.gamma
@@ -70,7 +70,6 @@ determineRun.type = function(run) {
     flag_bound = 0
   } 
   
-   
   if (run === 0) {
     ind_inc = 0
     ind_mult = 1
@@ -80,7 +79,7 @@ determineRun.type = function(run) {
     ind_mult = 1
     s = 0.01
   }
+  
   final = {paramProf : param, lscale : lscale, param_lims : param_lims, flag_bound : flag_bound, ind_inc : ind_inc, ind_mult : ind_mult, s : s}
   return final
 } 
-module.exports = determineRun

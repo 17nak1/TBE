@@ -20,7 +20,7 @@ ic <- rep(0,length(statenames))
 names(ic) <- paste0(statenames,0)
 
 
-run = 2
+runs = 1
 for (run in runs) {
   if (run==1) {
     LowerBounds <- c(p=2000, omega=0.1, delta=0.5,
