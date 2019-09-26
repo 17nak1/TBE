@@ -112,7 +112,6 @@ let dataEndTime = times[2]
 /**************************************************************************************************************************************************/
 function traj_match (data, params, times, index, place) {
   let deltaT = (1 / 52) * 365
-  var tempIndex = 0
   var estimated = []
   var states = []
   var data1 = []
@@ -191,7 +190,7 @@ function integrate (params, tLength, deltaT) {
 function main() {
   let resultSet = [], result
 
-  for(let count = 2; count < 3; count++) {
+  for(let count = 1; count < 2; count++) {
     var params = []
     for ( let i = 0; i < fullset[0].length; i++) {
       params.push(Number(fullset[count][i]))
@@ -200,7 +199,7 @@ function main() {
     
     resultSet.push(result)
   }
-const createCsvWriter = require('csv-writer').createArrayCsvWriter;
+  const createCsvWriter = require('csv-writer').createArrayCsvWriter;
   const csvWriter = createCsvWriter({
     header: [],
     path: './TBEres1.csv'
