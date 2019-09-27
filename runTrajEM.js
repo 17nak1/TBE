@@ -129,14 +129,13 @@ function traj_match (data, params, times, index, place) {
   }
   /* Optimizer function using Nelder Mead method */
   optimizer.f = logLik
-  optimizer.x0 = estimated;console.log("ES",estimated)
+  optimizer.x0 = estimated
   optimizer.tol = 0.1
   solution = optimizer.run()
-  for (let i = 0; i < optimizer.x0.length; i++) {  // fortran array start at one => estimated[i+1] 
+  for (let i = 0; i < optimizer.x0.length; i++) {
     params[place[i]] = solution[0][i]
   }
   params = model.fromEstimationScale(params, logTrans, logitTrans,flagStates)
-  console.log(params, -solution[1])
 
   /* calculate log likelihood */
   function logLik (n,estimated) {
@@ -152,22 +151,27 @@ function traj_match (data, params, times, index, place) {
     /* Return parameters' scale to original */
     params = model.fromEstimationScale(params, logTrans, logitTrans,0)
     simH = integrate(params, tLength, deltaT)
-    simHarranged[0] = simH[0]
-    for ( let i = 1; i < simH.length; i++) {
-      simHarranged[i -1] = simH[i] - simH[i - 1]
+    if(simH.length === 0) {
+      loglik = NaN;
+    } else {
+      simHarranged[0] = simH[0]
+      for ( let i = 1; i < simH.length; i++) {
+        simHarranged[i -1] = simH[i] - simH[i - 1]
+      }
+  
+      for (let i = 0; i < simHarranged.length; i++) {
+        likvalue = snippet.dObs(params[Index.obsprob], simHarranged[i], data[i][1], 1)
+        loglik = loglik + likvalue
+      }
     }
-
-    for (let i = 0; i < simHarranged.length; i++) {
-      likvalue = snippet.dObs(params[Index.obsprob], simHarranged[i], data[i][1], 1)
-      loglik = loglik + likvalue
-    }
-    console.log(params,loglik)
+    // console.log(params,loglik)
     return -(loglik).toFixed(6)
   }
   return[...params, -solution[1]]
 }
  /* ODE solver using emscripten */
 function integrate (params, tLength, deltaT) {
+  let lsodaException = 0
   let arr = []
   let buffer
   let N = snippet.rInit(params)  
@@ -177,7 +181,11 @@ function integrate (params, tLength, deltaT) {
 
   lsodaTem = Module.cwrap('run_me', "number", inputArray)
   buffer = Module._malloc(lengthBuffer * nByte)
-  lsodaTem(lengthBuffer, buffer, ...N, ...params, deltaT)
+  lsodaException = lsodaTem(lengthBuffer, buffer, ...N, ...params, deltaT)
+  if(lsodaException < 0){
+    Module._free(buffer)
+    return arr
+  }
   for (var i = 0; i < lengthBuffer; i++) {
     arr.push(Module.getValue(buffer + i * nByte, 'double'))
   }
@@ -190,7 +198,7 @@ function integrate (params, tLength, deltaT) {
 function main() {
   let resultSet = [], result
 
-  for(let count = 1; count < 2; count++) {
+  for(let count = 1; count < 100; count++) {
     var params = []
     for ( let i = 0; i < fullset[0].length; i++) {
       params.push(Number(fullset[count][i]))

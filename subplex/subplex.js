@@ -32,28 +32,19 @@ subplex.evalf = require('./evalf.js')
 subplex.dcopy = require('./dcopy.js')
 subplex.dscal = require('./dscal.js')
 subplex.daxpy = require('./daxpy.js')
-
 subplex.calcc = require('./calcc.js')
-
 subplex.subopt = require('./subopt.js')
-
 subplex.sortd = require('./sortd.js')
 subplex.partx = require('./partx.js')
 subplex.setstp = require('./setstp.js')
-
 subplex.start = require('./start.js')
 subplex.order = require('./order.js')
 subplex.newpt = require('./newpt.js')
-
 subplex.dasum = require('./dasum.js')
 subplex.dist = require('./dist.js')
 subplex.fstats = require('./fstats.js')
-
 subplex.simplx = require('./simplx.js')
-
 subplex.subplx = require('./subplx.js')
-
 subplex.run = require('./run.js')
-console.log('s')
 
 module.exports = subplex;
