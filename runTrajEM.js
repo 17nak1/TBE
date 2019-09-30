@@ -37,7 +37,7 @@ let paramsFixed =[Index.p, Index.delta, Index.mu_e, Index.mu_ql, Index.mu_el, In
               
 let ParamSetFile, paramProf
 if (run === 1) {
-  ParamSetFile = "./R2/ParamSet_TBE3.csv" 
+  ParamSetFile = "./problemPoint.csv" 
   paramProf = null 
 } else {
   ParamSetFile = `ParamSet_run${run}.csv`    
@@ -82,9 +82,14 @@ for (let i = 0; i < paramsIc.length; i++) {
   }
 flag = 0
 }
-
+let dataUpload = []
+let d = fs.readFileSync("./data/170705PseudoData.csv").toString()  
+var lines = d.split('\n')
+for (let i = 0; i < lines.length; i++) {
+  dataUpload.push(lines[i].split(','))
+}
 let covars = create.covars(startTime, endTime, dt)
-let data = create.dataset(startTime, endTime)
+let data = create.dataset(startTime, endTime, dataUpload)
 let temp = model.createPompModel(data, covars, 0, 0.005, paramsFixed)
 /* Index of parameters that need to be transfered */
 let logTrans = temp[0]
@@ -164,7 +169,7 @@ function traj_match (data, params, times, index, place) {
         loglik = loglik + likvalue
       }
     }
-    // console.log(params,loglik)
+    console.log(params,loglik)
     return -(loglik).toFixed(6)
   }
   return[...params, -solution[1]]
@@ -198,7 +203,7 @@ function integrate (params, tLength, deltaT) {
 function main() {
   let resultSet = [], result
 
-  for(let count = 1; count < 100; count++) {
+  for(let count = 1; count <= 1; count++) {
     var params = []
     for ( let i = 0; i < fullset[0].length; i++) {
       params.push(Number(fullset[count][i]))
@@ -210,7 +215,7 @@ function main() {
   const createCsvWriter = require('csv-writer').createArrayCsvWriter;
   const csvWriter = createCsvWriter({
     header: [],
-    path: './TBEres1.csv'
+    path: './resTBE.csv'
   })   
   csvWriter.writeRecords(resultSet)
     .then(() => {
@@ -224,3 +229,6 @@ Module.onRuntimeInitialized = main
 
 /*emcc lsoda.c -o lsoda.js -s  EXPORTED_FUNCTIONS='["_run_me"]' -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap","getValue"]' -s EXIT_RUNTIME=1
 */
+
+
+
