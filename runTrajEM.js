@@ -37,7 +37,7 @@ let paramsFixed =[Index.p, Index.delta, Index.mu_e, Index.mu_ql, Index.mu_el, In
               
 let ParamSetFile, paramProf
 if (run === 1) {
-  ParamSetFile = "./error.csv" 
+  ParamSetFile = "./problemPoint.csv" 
   paramProf = null 
 } else {
   ParamSetFile = `ParamSet_run${run}.csv`    
@@ -199,7 +199,7 @@ function integrate (params, tLength, deltaT) {
 function main() {
   let resultSet = [], result
 
-  for(let count = 2; count <= 2; count++) {
+  for(let count = 1; count <= 1; count++) {
     var params = []
     for ( let i = 0; i < fullset[0].length; i++) {
       params.push(Number(fullset[count][i]))
@@ -232,6 +232,3 @@ Module.onRuntimeInitialized = main
 
 /*emcc lsoda.c -o lsoda.js -s  EXPORTED_FUNCTIONS='["_run_me"]' -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap","getValue"]' -s EXIT_RUNTIME=1
 */
-
-
-
