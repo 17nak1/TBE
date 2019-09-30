@@ -156,18 +156,14 @@ function traj_match (data, params, times, index, place) {
     /* Return parameters' scale to original */
     params = model.fromEstimationScale(params, logTrans, logitTrans,0)
     simH = integrate(params, tLength, deltaT)
-    if(simH.length === 0) {
-      loglik = NaN;
-    } else {
-      simHarranged[0] = simH[0]
-      for ( let i = 1; i < simH.length; i++) {
-        simHarranged[i -1] = simH[i] - simH[i - 1]
-      }
+    simHarranged[0] = simH[0]
+    for ( let i = 1; i < simH.length; i++) {
+      simHarranged[i -1] = simH[i] - simH[i - 1]
+    }
   
-      for (let i = 0; i < simHarranged.length; i++) {
-        likvalue = snippet.dObs(params[Index.obsprob], simHarranged[i], data[i][1], 1)
-        loglik = loglik + likvalue
-      }
+    for (let i = 0; i < simHarranged.length; i++) {
+      likvalue = snippet.dObs(params[Index.obsprob], simHarranged[i], data[i][1], 1)
+      loglik = loglik + likvalue
     }
     // console.log("ll",params,loglik)
     return -(loglik).toFixed(6)
@@ -189,7 +185,7 @@ function integrate (params, tLength, deltaT) {
   lsodaException = lsodaTem(lengthBuffer, buffer, ...N, ...params, deltaT)
   if(lsodaException < 0){
     Module._free(buffer)
-    return arr
+    throw 'lsoda steps taken before reaching tout'
   }
   for (var i = 0; i < lengthBuffer; i++) {
     arr.push(Module.getValue(buffer + i * nByte, 'double'))
@@ -208,9 +204,13 @@ function main() {
     for ( let i = 0; i < fullset[0].length; i++) {
       params.push(Number(fullset[count][i]))
     }
-    result = traj_match (data, params, times, index, place)
-    
-    resultSet.push(result)
+    try{
+      result = traj_match (data, params, times, index, place)    
+      resultSet.push(result)
+    }
+    catch(e) {
+      console.error(e);
+    }
   }
   const createCsvWriter = require('csv-writer').createArrayCsvWriter;
   const csvWriter = createCsvWriter({
