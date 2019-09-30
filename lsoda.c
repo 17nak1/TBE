@@ -3324,6 +3324,7 @@ int run_me(int lengthBuffer, double* yout, double y1, double y2, double y3, doub
     // printf(" %14.6e \n",yout[iout]);
     if (istate <= 0) {
       printf("error istate = %d\n", istate);
+      // exit(0);
 			n_lsoda_terminate();
 			return -1;
     }

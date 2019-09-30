@@ -37,7 +37,7 @@ let paramsFixed =[Index.p, Index.delta, Index.mu_e, Index.mu_ql, Index.mu_el, In
               
 let ParamSetFile, paramProf
 if (run === 1) {
-  ParamSetFile = "./problemPoint.csv" 
+  ParamSetFile = "./error.csv" 
   paramProf = null 
 } else {
   ParamSetFile = `ParamSet_run${run}.csv`    
@@ -169,7 +169,7 @@ function traj_match (data, params, times, index, place) {
         loglik = loglik + likvalue
       }
     }
-    console.log(params,loglik)
+    // console.log("ll",params,loglik)
     return -(loglik).toFixed(6)
   }
   return[...params, -solution[1]]
@@ -203,7 +203,7 @@ function integrate (params, tLength, deltaT) {
 function main() {
   let resultSet = [], result
 
-  for(let count = 1; count <= 1; count++) {
+  for(let count = 2; count <= 2; count++) {
     var params = []
     for ( let i = 0; i < fullset[0].length; i++) {
       params.push(Number(fullset[count][i]))
@@ -214,7 +214,10 @@ function main() {
   }
   const createCsvWriter = require('csv-writer').createArrayCsvWriter;
   const csvWriter = createCsvWriter({
-    header: [],
+    header: ['p' , 'omega' , 'delta' , 'mu_e' , 'mu_ql' , 'mu_el' , 'mu_qn' , 'mu_en' , 'mu_qa' , 'mu_ea' , 'mu_h' ,
+     'beta_nh' , 'beta_hl' , 'beta_hn' , 'lambda_l' , 'lambda_n' , 'lambda_a' , 'alpha' , 'f_l' , 'f_n' , 'f_a' , 'kappa' , 
+     'c' , 'Tf' , 'obsprob' , 'T_min_l' , 'gamma' , 'E0' , 'QL0' , 'EL_s0' , 'EL_i0' , 'QN_s0' , 'QN_i0' , 'EN_s0' , 'EN_i0' ,
+      'QA_s0' , 'QA_i0' , 'EA0' , 'H_s0' , 'H_i0' , 'LogLik'],
     path: './resTBE.csv'
   })   
   csvWriter.writeRecords(resultSet)
