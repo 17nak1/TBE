@@ -37,7 +37,7 @@ let paramsFixed =[Index.p, Index.delta, Index.mu_e, Index.mu_ql, Index.mu_el, In
               
 let ParamSetFile, paramProf
 if (run === 1) {
-  ParamSetFile = "./problemPoint.csv" 
+  ParamSetFile = "ParamSet_TBE.csv" //"./problemPoint.csv" 
   paramProf = null 
 } else {
   ParamSetFile = `ParamSet_run${run}.csv`    
@@ -136,6 +136,7 @@ function traj_match (data, params, times, index, place) {
   optimizer.f = logLik
   optimizer.x0 = estimated
   optimizer.tol = 0.1
+
   solution = optimizer.run()
   for (let i = 0; i < optimizer.x0.length; i++) {
     params[place[i]] = solution[0][i]
@@ -154,7 +155,7 @@ function traj_match (data, params, times, index, place) {
     }
 
     /* Return parameters' scale to original */
-    params = model.fromEstimationScale(params, logTrans, logitTrans,0)
+    params = model.fromEstimationScale(params, logTrans, logitTrans)
     simH = integrate(params, tLength, deltaT)
     simHarranged[0] = simH[0]
     for ( let i = 1; i < simH.length; i++) {
@@ -168,6 +169,7 @@ function traj_match (data, params, times, index, place) {
     // console.log("ll",params,loglik)
     return -(loglik).toFixed(6)
   }
+  console.log(solution)
   return[...params, -solution[1]]
 }
  /* ODE solver using emscripten */
@@ -205,10 +207,11 @@ function main() {
       params.push(Number(fullset[count][i]))
     }
     try{
-      result = traj_match (data, params, times, index, place)    
-      resultSet.push(result)
+      result = traj_match (data, params, times, index, place);   
+      resultSet.push(result);
     }
     catch(e) {
+      resultSet.push([...Array(params.length - 1).fill(0), NaN]);
       console.error(e);
     }
   }
@@ -232,3 +235,12 @@ Module.onRuntimeInitialized = main
 
 /*emcc lsoda.c -o lsoda.js -s  EXPORTED_FUNCTIONS='["_run_me"]' -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap","getValue"]' -s EXIT_RUNTIME=1
 */
+
+// if (!runFast) {
+//     solution = optimizer.run()
+//     for (let i = 0; i < optimizer.x0.length; i++) {
+//       params[place[i]] = solution[0][i]
+//     }
+//   } else {
+//     logLik(estimated.length, [null,...estimated])
+//   }

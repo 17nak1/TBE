@@ -3293,10 +3293,10 @@ int run_me(int lengthBuffer, double* yout, double y1, double y2, double y3, doub
   itol = 2;
   rtol[0] = 0.0;
   atol[0] = 0.0;
-  rtol[1] = rtol[3] = 1.0E-4;
-  rtol[2] = rtol[4] = rtol[5] = rtol[6] = rtol[7] = rtol[8] = rtol[9] = rtol[10] = rtol[11] =rtol[12] = rtol[13] = rtol[14] =   1.0E-8;
+  rtol[1] = rtol[3] = 1.0E-6;
+  rtol[2] = rtol[4] = rtol[5] = rtol[6] = rtol[7] = rtol[8] = rtol[9] = rtol[10] = rtol[11] =rtol[12] = rtol[13] = rtol[14] =   1.0E-6;
   atol[1] = 1.0E-6;
-  atol[2] = 1.0E-10;
+  atol[2] = 1.0E-6;
   atol[3] = 1.0E-6;
   atol[4] = 1.0E-6;
   atol[5] = 1.0E-6;
