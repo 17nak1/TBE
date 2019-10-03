@@ -8,7 +8,8 @@
     "fs": "0.0.1-security",
     "lib-r-math.js": "^1.0.86",
     "linear-interpolator": "^1.0.2",
-    "math-erf": "^1.0.0"
+    "math-erf": "^1.0.0",
+    "seedrandom": "^3.0.5"
   },
   "devDependencies": {
     "browserify": "^16.2.3"
