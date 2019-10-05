@@ -18,7 +18,6 @@
 // can continue to use Module afterwards as well.
 var Module = typeof Module !== 'undefined' ? Module : {};
 
-
 // --pre-jses are emitted after the Module integration code, so that they can
 // refer to Module (if they choose; they can also define Module)
 // {{PRE_JSES}}
@@ -1772,7 +1771,7 @@ var ASM_CONSTS = [];
 
 STATIC_BASE = GLOBAL_BASE;
 
-STATICTOP = STATIC_BASE + 39952;
+STATICTOP = STATIC_BASE + 75504;
 /* global initializers */  __ATINIT__.push();
 
 
@@ -1781,7 +1780,7 @@ STATICTOP = STATIC_BASE + 39952;
 
 
 
-var STATIC_BUMP = 39952;
+var STATIC_BUMP = 75504;
 Module["STATIC_BASE"] = STATIC_BASE;
 Module["STATIC_BUMP"] = STATIC_BUMP;
 

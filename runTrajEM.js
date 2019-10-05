@@ -37,7 +37,7 @@ let paramsFixed =[Index.p, Index.delta, Index.mu_e, Index.mu_ql, Index.mu_el, In
               
 let ParamSetFile, paramProf
 if (run === 1) {
-  ParamSetFile = "ParamSet_TBE.csv" //"./problemPoint.csv" 
+  ParamSetFile = "./ParamSet_TBE3.csv"
   paramProf = null 
 } else {
   ParamSetFile = `ParamSet_run${run}.csv`    
@@ -169,7 +169,7 @@ function traj_match (data, params, times, index, place) {
     // console.log("ll",params,loglik)
     return -(loglik).toFixed(6)
   }
-  console.log(solution)
+  console.log(params, -solution[1])
   return[...params, -solution[1]]
 }
  /* ODE solver using emscripten */
@@ -211,7 +211,7 @@ function main() {
       resultSet.push(result);
     }
     catch(e) {
-      resultSet.push([...Array(params.length - 1).fill(0), NaN]);
+      resultSet.push([...Array(params.length).fill(0), NaN]);
       console.error(e);
     }
   }
@@ -221,7 +221,7 @@ function main() {
      'beta_nh' , 'beta_hl' , 'beta_hn' , 'lambda_l' , 'lambda_n' , 'lambda_a' , 'alpha' , 'f_l' , 'f_n' , 'f_a' , 'kappa' , 
      'c' , 'Tf' , 'obsprob' , 'T_min_l' , 'gamma' , 'E0' , 'QL0' , 'EL_s0' , 'EL_i0' , 'QN_s0' , 'QN_i0' , 'EN_s0' , 'EN_i0' ,
       'QA_s0' , 'QA_i0' , 'EA0' , 'H_s0' , 'H_i0' , 'LogLik'],
-    path: './resTBE.csv'
+    path: './resTBE3_200.csv'
   })   
   csvWriter.writeRecords(resultSet)
     .then(() => {
