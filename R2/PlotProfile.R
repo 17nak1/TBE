@@ -1,13 +1,13 @@
 rm(list=ls())
-mainDir="/home/nazila/Git/TBE/R2"
 source("SetValues.R")
 library(RColorBrewer)
 library(xtable)
 
 modeltype <- 1
-
-runs <- seq(3,10)
-runs <- c(seq(3,7),9,10,14)
+# 
+# runs <- seq(3,10)
+# runs <- c(seq(3,7),9,10,14)
+runs <- 3
 
 save_plot <- T
 matrix_plot <- F
@@ -25,7 +25,7 @@ cutoff <- qchisq(p=0.95,df=1)/2
 ymin <- -1320
 ymax <- -1280
 table_MLE <- NULL
-run=3
+
 for (run in runs) {
   
   table_values <- NULL
@@ -40,7 +40,7 @@ for (run in runs) {
   print(param)
   setwd(mainDir)
   
-  file <- paste0("allr.csv")
+  file <- paste0("TBE_all.csv")
   print(file)
   dataset <- read.table(file, header=TRUE,sep=",")
   
@@ -79,7 +79,7 @@ for (run in runs) {
       return(out)
     }
   }  
-  # k0 <- f(x0)
+  # # k0 <- f(x0)
   # temp <- optimize(f,lower=(1-theta)*x0 + theta*param_lims[1],
   #                  upper=(1-theta)*x0 + theta*param_lims[2],maximum=TRUE)
   #   
@@ -90,13 +90,13 @@ for (run in runs) {
   } else {
     param_array <- seq(min(param_profile[,param]),max(param_profile[,param]),length=10*no_profile)
   }
-  xmin <- param_array[min(which(f(param_array) > k0 - qchisq(p=0.95,df=1)/2))]
-  xmax <- param_array[max(which(f(param_array) > k0 - qchisq(p=0.95,df=1)/2))]
+  # xmin <- param_array[min(which(f(param_array) > k0 - qchisq(p=0.95,df=1)/2))]
+  # xmax <- param_array[max(which(f(param_array) > k0 - qchisq(p=0.95,df=1)/2))]
     
   
-  MLE <- cbind.data.frame(MLE=x0,param=param,run=run,
-                          LogLik=k0,xmin=xmin,xmax=xmax)
-  table_MLE <- rbind(table_MLE,MLE)
+  # MLE <- cbind.data.frame(MLE=x0,param=param,run=run,
+  #                         LogLik=k0,xmin=xmin,xmax=xmax)
+  # table_MLE <- rbind(table_MLE,MLE)
     
   table_values <- rbind(table_values,cbind.data.frame(unname(param_profile[,c(param,"LogLik")]),param=param,run=run))
     
@@ -121,21 +121,21 @@ for (run in runs) {
   cols <- brewer.pal(8, "Set2")
   # cols <- cols[modeltypes]
   
-  table_rect <- MLE[,c("run", "xmin", "xmax", "LogLik")]
-  table_rect[,"ymin"] <- ymin
-  table_rect[,"ymax"] <- ymax
-  table_rect <- as.data.frame(table_rect)
+  # table_rect <- MLE[,c("run", "xmin", "xmax", "LogLik")]
+  # table_rect[,"ymin"] <- ymin
+  # table_rect[,"ymax"] <- ymax
+  # table_rect <- as.data.frame(table_rect)
   
   
   
   
   if (lscale==0) {
     p <- ggplot(table_values,aes_string(x="Values",y="LogLik")) +
-      geom_rect(data=table_rect,aes(xmin=xmin,xmax=xmax,ymin=ymin,ymax=ymax),inherit.aes=F,alpha=0.2) +
+      # geom_rect(data=table_rect,aes(xmin=xmin,xmax=xmax,ymin=ymin,ymax=ymax),inherit.aes=F,alpha=0.2) +
       geom_point(aes(colour=run)) + 
       scale_colour_manual(values = cols,labels=runs) +
       geom_smooth(method="loess",span=alpha_fit,colour="black") +
-      geom_vline(aes(xintercept=MLE), data=MLE[,c("MLE","run","LogLik")]) +
+      # geom_vline(aes(xintercept=MLE), data=MLE[,c("MLE","run","LogLik")]) +
       xlab(param)+
       theme_bw() + 
       scale_y_continuous(limits = c(ymin,ymax)) +
@@ -165,16 +165,16 @@ for (run in runs) {
   
   
 }
-rm(run,ind1)
-
-rownames(table_MLE) <- runs
-colnames(table_MLE) <- c("MLE","Parameter","run","LogLik","xmin","xmax")
-
+# rm(run,ind1)
+# 
+# rownames(table_MLE) <- runs
+# colnames(table_MLE) <- c("MLE","Parameter","run","LogLik","xmin","xmax")
+# 
+# # table_MLE[,"run"] <- as.factor(table_MLE[,"run"])
+# # table_MLE[,"MLE"] <- as.numeric(table_MLE[,"MLE"])
+# table_MLE <- as.data.frame(table_MLE)
 # table_MLE[,"run"] <- as.factor(table_MLE[,"run"])
-# table_MLE[,"MLE"] <- as.numeric(table_MLE[,"MLE"])
-table_MLE <- as.data.frame(table_MLE)
-table_MLE[,"run"] <- as.factor(table_MLE[,"run"])
-print(table_MLE)
-xtable(table_MLE[,c("MLE","LogLik","xmin","xmax")])
-
-# plot(param_profile[,c("alpha", "f_a", "lambda_a", "kappa", param, "LogLik")])
+# print(table_MLE)
+# xtable(table_MLE[,c("MLE","LogLik","xmin","xmax")])
+# 
+# # plot(param_profile[,c("alpha", "f_a", "lambda_a", "kappa", param, "LogLik")])

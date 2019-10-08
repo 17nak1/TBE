@@ -14,9 +14,9 @@ create.covars = function(startTime=1991, endTime=2016, stepsize=0.005) {
   let time = [], x
   
   // time: Shows the number of days, start from zero and calculated by deviding [0 , endTime - startTime] with stepsize.  
-  for (let i = startTime; i <= endTime + 1 + 1e-8 ; i += stepsize) {
+  for (let i = startTime; i <= endTime + 1; i += stepsize) {
     x = (i - startTime) * 365
-    time.push(Number(x.toFixed(6)))
+    time.push(Number(x))
   }
   let d = fs.readFileSync("./data/SzombathelyTempDaily1901to2015Monthly.csv").toString()
   let data = [], data1 = []

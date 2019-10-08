@@ -20,14 +20,14 @@ job <- 1
 
 # runs <- c(1,seq(3,13))
 # runs <- c(1,5)
-runs <- c(2)
+runs <- c(1)
 
 startTime <- 1991
 endTime <- 2008
 
 
 total.cores <-1# c(5e2)       # Total number of cores being used for the phase
-no.points <-2# c(1e3)         # Number of points per region
+no.points <-200# c(1e3)         # Number of points per region
 est.icstart <- c(0)         # Are there no initial conditions given? 0-Given, 1-No, 2-TrajMatch
 
 no.cores <- total.cores
@@ -49,7 +49,7 @@ source("ModelSnippet.R")
 run = 1
 # for (run in runs) {
   if (run==1) {
-    ParamSetFile <- paste0("pn.csv") 
+    ParamSetFile <- paste0("resTBE3_200.csv")
     param.prof <- NULL  
   } else {
     ParamSetFile <- paste0("ParamSet_run",run,".csv")    
@@ -131,7 +131,26 @@ run = 1
       traj.match(po,
                  transform=TRUE,
                  ode_control=list(method="lsoda"),
+                 method = c("subplex"),
                  est=c()) -> sets.traj#params.ic.fit,params.fit
+      # logLik(sets.traj)
+      # coef(sets.traj)
+      # ss <- sets.traj@states
+      # setwd("~/Git/TBE")
+      # nn= 1
+      # write.csv(ss[14,],"cases.csv")
+      # res <- read.csv("resall1.csv")
+      # tt <-  sets.traj@times
+      # E <-  c()
+      # 
+      # for( i in 1:937) { #937
+      #     E[i] <-   res[i,nn + 1]
+      # }
+      # 
+      # 
+      # plot(E,col="red")
+      # points(ss[nn,])
+      # aa <- rbind(ss[nn,], E)
       # Save and compute loglikelihood
       current.params <- coef(sets.traj)
       loglik.traj <- logLik(sets.traj)
@@ -149,3 +168,68 @@ run = 1
   
   write.csv(currentset,file=paste0("TBE_job", job, ".csv"),row.names=FALSE)    
   setwd(mainDir)
+# }
+
+  
+#   
+#   library(deSolve)
+# 
+#   LotVmod <- function (Time, y, Pars) {
+#     with(as.list(c(y, Pars)), {
+#       dx = y[1]*(alpha - beta*y[2])
+#       dy = -y[1]*(gamma - delta*y[1])
+#       dz = y[3]
+#       return(list(c(dx, dy,dz)))
+#     })
+#   }
+#   
+#   parms <- c(alpha = 2/3, beta = 4/3, gamma = 1, delta = 1)
+#   State <- c(x = 1, y = 1, z=1)
+#   times <- seq(0, 10, by = 1)
+# 
+#   # out <- as.data.frame(ode(func = LotVmod, y = State, parms = Pars, times = times))
+#   # plot(out[-1,3])
+# 
+#   out <- lsoda(c(1, 1,1), times, LotVmod, parms, rtol = 1e-4,
+#                atol = my.atol, hmax = Inf)
+#   
+# LotVmod1 <- function (Time, State, Pars) {
+#   with(as.list(c(State, Pars)), {
+#     dx = x*(alpha - beta*y)
+#     dy = -x* (gamma - delta*x)
+#     dz = z
+#     return(list(c(dx, dy,dz)))
+#   })
+# }
+# 
+# Pars <- c(alpha = 2/3, beta = 4/3, gamma = 1, delta = 1)
+# State1 <- c(x = 1, y = 1,z=1)
+# Time <- seq(0, 6, by = 1)
+# 
+# out1 <- as.data.frame(ode(func = LotVmod1, y = State1, parms = Pars, times = Time, method = "lsoda"))
+# #   plot(out[-1,3],type="l")
+# #   points(exp(out1[-1,3]),col="red",type= "l")
+# #   
+# #  
+#   #############################################################################
+  # parms   <- c(k1 = 0.04, k2 = 1e4, k3 = 3e7)
+  # my.atol <- c(1e-6,  1e-10,  1e-6)
+  # times <- c()
+  # for(i in 1:12) {
+  #   times[i] = .4 * 10 ^(i-1)
+  # }
+  #
+  #
+  # lsexamp <- function(t, y, p) {
+  #   with(as.list(c(y,p)), {
+  #   yd1 <- -k1 * y[1] + k2 * y[2]*y[3]
+  #   yd3 <- k3 * y[2]^2
+  #   yd2 <- -yd1-yd3
+  #   list(c(yd1, yd2, yd3))
+  #   })
+  # }
+  #
+  #   out <- lsoda(c(1, 0, 0), times, lsexamp, parms, rtol = 1e-4,
+  #                atol = my.atol, hmax = Inf)
+  # out
+#   

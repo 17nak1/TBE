@@ -10,15 +10,14 @@
  */
 
 
-let snippet = require('./modelSnippet.js')
-let model = require('./createModel')
-let create  = require('./create.js')
-let mathLib = require('./mathLib')
-let Index = require('./indices')
-let DetermineRun = require('./determineRun')
-let fmin    = require('fmin')
+let snippet = require('./LIB/modelSnippet.js')
+let model = require('./LIB/createModel')
+let create  = require('./LIB/create.js')
+let mathLib = require('./LIB/mathLib')
+let Index = require('./LIB/indices')
+let DetermineRun = require('./LIB/determineRun')
 let fs = require('fs')
-const Module = require('./lsoda.js')
+const Module = require('./lsoda1/lsoda.js')
 let optimizer = require('./subplex/subplex.js');
 /************************************************************ Will be defined in ui ************************************************/
 let dt = 0.005 // Step size only use in covar
@@ -37,7 +36,7 @@ let paramsFixed =[Index.p, Index.delta, Index.mu_e, Index.mu_ql, Index.mu_el, In
               
 let ParamSetFile, paramProf
 if (run === 1) {
-  ParamSetFile = "./ParamSet_TBE3.csv"
+  ParamSetFile = "./data/ParamSet_TBE3.csv"
   paramProf = null 
 } else {
   ParamSetFile = `ParamSet_run${run}.csv`    
@@ -166,7 +165,7 @@ function traj_match (data, params, times, index, place) {
       likvalue = snippet.dObs(params[Index.obsprob], simHarranged[i], data[i][1], 1)
       loglik = loglik + likvalue
     }
-    // console.log("ll",params,loglik)
+    console.log("ll",params,loglik)
     return -(loglik).toFixed(6)
   }
   console.log(params, -solution[1])

@@ -10160,7 +10160,7 @@ static void skel(double t, double *y, double *ydot, void *void_data)
 int run_me(int lengthBuffer, double* yout, double y1, double y2, double y3, double y4, double y5, double y6, double y7, double y8, double y9, double y10, double y11, double y12,
            double y13, double y14 , double data0, double data1, double data2, double data3, double data4 , double data5 , double data6 , double data7 , double data8 ,
             double data9 , double data10 , double data11 , double data12 , double data13 , double data14 , double data15, double data16, double data17 , double data18 , double data19 , double data20 , double data21 ,
-             double data22 , double data23 , double data24 , double data25 , double data26)
+             double data22 , double data23 , double data24 , double data25 , double data26, double *x, int lengthx)
 {
 
   
@@ -10171,6 +10171,7 @@ int run_me(int lengthBuffer, double* yout, double y1, double y2, double y3, doub
   int             itol, itask, istate, iopt, jt, iout, ijs;
   double          data[27];
   double          tout;
+  //printf("%f %f %f \n", x[1], x[2],x[3]);
   // printf(" %d , %14.6e, %14.6e, \n", lengthBuffer, tout);
   iwork1 = iwork2 = iwork5 = iwork6 = iwork7 = iwork8 = iwork9 = 0;
   rwork1 = rwork5 = rwork6 = rwork7 = 0.0;

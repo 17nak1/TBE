@@ -1,6 +1,7 @@
-# CFLAGS += -D_LSODA_MAIN -Wall
-# LOADLIBES += -lm
-subplex: subplex.o
+CFLAGS += -D_LSODA_MAIN -Wall
+LOADLIBES += -lm
+lsoda: lsoda.o
 
 clean:
-	$(RM) subplex subplex.o
+        $(RM) lsoda lsoda.o
+
