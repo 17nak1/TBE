@@ -1,0 +1,38 @@
+section.project-description {
+  padding: 40px 0 40px 0;
+  .navigation {
+    @media (max-width: 992px) { display: none; }
+
+
+    border-right: solid 1px #eaeaea;
+    .nav {
+      font-family: $body;
+      .nav-item {
+        .nav-link.active {
+          color: $blue;
+        }
+        .nav-link {
+          color: $grey;
+        }
+      }
+      .primary {
+        font-size: 16px;
+        font-weight: 500;
+      }
+      .secondary {
+        font-size: 14px;
+        font-weight: 500;
+        margin-left: 16px;
+      }
+    }
+  }
+  .content {
+    .content-container {
+      padding-left: 32px;
+      @media (max-width: 992px) { padding-left: 0; }
+
+    }
+  }
+
+
+}

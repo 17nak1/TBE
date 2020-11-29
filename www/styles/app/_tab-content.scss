@@ -1,0 +1,83 @@
+body .tab-content {
+  margin-top: 32px;
+  h2 {
+    font-size: 24px;
+    font-weight: 500;
+    color: $grey;
+  }
+  .mdc-text-field {
+    font-size: 16px;
+    width: 100%;
+    margin: 12px 0 12px 0;
+    &--focused {
+      .mdc-floating-label {
+        color: $blue;
+      }
+      .mdc-notched-outline__notch,.mdc-notched-outline__leading, .mdc-notched-outline__trailing {
+        border-color: $blue !important;
+      }
+      .mdc-text-field__input {
+        caret-color: $blue;
+
+      }
+    }
+  }
+  section.uploads {
+    padding-top: 24px;
+    .file-upload {
+      width: 100%;
+      max-width: 400px;
+      background-color: #f7f7f7;
+      height: 200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: dashed 2px rgba(47,47,47,.5);
+      .success-message {
+        display: none;
+      }
+      .success-img {
+        display: none;
+      }
+      img {
+        max-width: 80px;
+        margin-bottom: 16px;
+      }
+      .weak {
+        opacity: .5;
+      }
+      p {
+        font-size: 16px;
+        color: $grey;
+        margin-bottom: 0;
+      }
+      .custom-button {
+        background-color: rgba(47,47,47,.1);
+        border-radius: 4px;
+        padding: 8px 16px;
+        margin-top: 8px;
+        font-size: 14px;
+        font-family: $body;
+        text-transform: uppercase;
+        font-weight: 500;
+        &:hover {
+          cursor: pointer;
+        }
+      }
+      &.uploaded {
+        background-color:#f4f5fa;
+        border-color:rgba(33, 81, 232, 0.1);
+        .success-message {
+          display: block;
+        }
+        .success-img {
+          display: block;
+        }
+        .not-uploaded {
+          display: none;
+        }
+      }
+    }
+  }
+}

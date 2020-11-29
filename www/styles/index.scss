@@ -1,0 +1,84 @@
+@import 'variables';
+@import 'fonts';
+@import 'global';
+@import 'dcl';
+@import 'footer';
+@import 'progress-container';
+@import 'home/landing-header';
+@import 'home/landing-content';
+@import 'app/nav';
+@import 'app/tab-content';
+@import 'app/model';
+@import 'app/initial-search';
+@import 'app/refinements';
+@import 'app/combine';
+
+
+@import 'bootstrap/bootstrap';
+
+.mdc-notched-outline__notch.veryuniqueclass {
+    width: 260px !important;
+}
+
+thead {
+  font-weight: 500;
+}
+
+.nav-item img{
+  opacity: 30%;
+}
+
+.nav-item .active img {
+  opacity: 1;
+}
+
+table#sobolBound thead td#parameter-bound {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+table#sobolBound thead td#parameter-bound #parameter-ranges {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+}
+
+table#sobolBound thead td#parameter-bound #parameter-ranges {
+  flex-grow: 1;
+}
+
+td .flag-bound {
+  display: flex;
+  justify-content: space-around;
+}
+
+div#plotContainer {
+  justify-content: center;
+  display: flex;
+}
+
+
+table#bestResult-table {
+  width: 100%;
+  border-right: 1px solid black;
+  border-left: 1px solid black;
+
+  input {
+    width: 100%;
+  }
+
+  td {
+    border: 1px solid black;
+    border-left: none;
+    border-right: none;
+    border-collapse: collapse;
+
+    &:nth-child(odd) {
+      padding-left: 1em;
+      padding-right: 1em;
+      width:10%;
+    }
+  }
+}
+

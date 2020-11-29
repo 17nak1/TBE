@@ -1,0 +1,57 @@
+body section.refinement-section {
+  margin-top: 32px;
+  .row {
+    margin-top: 32px;
+    margin-bottom: 32px;
+  }
+  .nav-tabs {
+    justify-content: flex-start;
+    .nav-item {
+
+      .nav-link {
+        border-bottom: solid 2px #efefef;
+        padding-left: 16px;
+        padding-right: 16px;
+        font-weight: 400;
+        font-size: 18px;
+        &.active {
+          border-bottom: solid 2px $blue;
+          color: $blue;
+        }
+      }
+    }
+  }
+  .ref-option {
+    display: flex;
+    h3 {
+      font-size: 16px;
+      margin-bottom: 0;
+      margin-right: 16px;
+      line-height: 34px;
+    }
+    p {
+      margin-bottom: 0;
+      line-height: 58px;
+      margin-right: 16px;
+    }
+    .switch {
+      margin-bottom: 0;
+    }
+    input {
+      border-radius: 4px;
+      border-color: rgba(47,47,47,.5);
+      border-width: 1px;
+      padding: 16px;
+      margin-right: 16px;
+      width: 120px;
+    }
+
+
+  }
+  button {
+    display: block;
+    &:hover {
+      background-color: $blue;
+    }
+  }
+}

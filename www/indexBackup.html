@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Trajectory Matching</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+  <script src="http://scheduler.nazila.office.kingsds.network/etc/dcp-config.js"></script>
+  <script src='http://portal.nazila.office.kingsds.network/dcp-client/dcp-client.js'></script>
+
+  <script src="js/bundle.js"></script>
+  <script src="./htmlFunctions.js"></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+  <link rel="stylesheet" type="text/css" href="./styles.css">
+
+</head>
+<body>
+<body>
+  <div id="banner">
+    <div class="authors">
+      <h1 id="header">Trajectory Matching for Tick-Borne Encephalitis Model</h1>
+    </div>
+    <hr>
+  </div>
+  <div id="spacer" style="margin-top: 130px"></div>
+  <br>
+<div class="container" style="width: 80%">
+  <p>Data analysis typically involves identifying regions of parameter space within which a postulated model is statistically consistent with the data. Additionally, one frequently desires to assess the relative merits of alternative models as explanations of the data. </p>
+    <p>A partially observed Markov process (POMP) model consists of incomplete and noisy measurements of a latent, unobserved Markov process. It has been a challenge to provide a software environment that can effectively handle broad classes of POMP models and take advantage of the wide range of statistical methodologies that have been proposed for such models. The <a href="https://kingaa.github.io/pomp/install.html">R package pomp </a> (King et al. 2016) provides us with a wide range of tools to represent POMP models.</p
+    >
+    <p> In Tick-Borne Encephalitis model data considered to be weekly.</p>
+
+  <ul class="nav nav-tabs">
+    <li><a data-toggle="tab" href="#data"> Data</a></li>
+    <li><a data-toggle="tab" href="#model"> Model parameters</a></li>
+    <li><a data-toggle="tab" href="#initial">Initial points</a></li>
+    <li><a data-toggle="tab" href="#refinements"> Refinements</a></li>
+    <li><a data-toggle="tab" href="#combine">combine</a></li>
+  </ul>
+  <div class="tab-content ">
+
+<!-- First TAB -->
+
+    <div id="data" class="tab-pane fade" style="margin-bottom: 100px">
+      <div id="table">
+        <table id="table1" style="margin:auto auto";>
+          <tr>
+            <td title=" number of true cases" class="variable" style="height:50px"> Start date for the data</td>
+            <td ><input id= startTime style="width:100%;border: 0" type="number" value='1991' ></td>
+          </tr>
+          <tr>
+            <td class="variable" style="height:50px"> End date for the data </td>
+            <td ><input id= endTime style="width:100%;border: 0" type="number" value="2008" ></td>
+          </tr>
+          <tr>
+            <td title="biweekly" class="variable" style="height:50px"> Start time for the model(t0)</td>
+            <td ><input id= tZero style="width:100%;border: 0" type="number" value="0"></td>
+          </tr>
+          <tr>
+            <td class="variable" style="height:50px"> Step size for the model(dt)</td>
+            <td ><input id=dt style="width:100%;border: 0" type="text" value=' 0.005' ></td>
+          </tr>
+        </table>
+      </div>
+      <br>
+      <div id="table">
+        <center>
+          <div id="setup" style="width: 350px;">
+            <tr>
+            <label id = "label-tab2file1" for="tab2file1-upload" class="custom-button" style="text-align: center">
+            Upload covariates
+            </label>
+            <input id="tab2file1-upload" type="file" style="display:none;">
+            <label id = "label-tab2file2" for="tab2file2-upload" class="custom-button">
+            Upload reports
+            </label>
+            <input id="tab2file2-upload" type="file" style="display:none;">
+            </tr>
+          </div>
+        </center>
+      </div>
+    </div>
+    <div id="model" class="tab-pane fade" style="margin-bottom: 100px">
+        <div id="table">
+          <table id="table1" style="margin:auto auto">
+              <tr>
+              <td>
+                <table id = sobolBound>
+                  <tr>
+                    <td style="width: 120px" >Model parameter & Initial condition</td>
+                    <td style="width: 120px" >Fixed/Estimated</td>
+                    <td>Value/Range</td>
+                    <td style="width: 120px">Flag bound</td>
+                  </tr>
+                  <tr>
+                    <td title= 'maximum number of eggs laid by egg-laying adult female ticks' id = 'p'> p</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" onchange ="activeRngVal(this,0);">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val>
+                       <input id= valInp style="width:145px;"type="number"  value="2000">
+                      </div>
+                      <div id=rng style="display: none;">
+                       <input style="width:45px;" id="from" type="number\text" value="Low bound">
+                       <input style="width:45px;" id="to" type="number\text" value="High bound">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(0,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(0,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(0,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="degree of density dependent fecundity" id = 'omega'> \(\omega\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" checked="true" onchange ="activeRngVal(this,1);">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val style="display: none;">
+                       <input id= valInp style="width:145px;"type="number"  value="value">
+                      </div>
+                      <div id=rng>
+                       <input style="width:45px;" id="from" type="number\text" value="0.1">
+                       <input style="width:45px;" id="to" type="number\text" value="100">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i"  onclick="checkBox(1,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(1,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" checked="checked" onclick="checkBox(1,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="proportion of engorged female adults to engorged adults" id ='delta'>delta</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox"  onchange ="activeRngVal(this,2);">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val>
+                       <input id= valInp style="width:145px;"type="number"  value="0.5">
+                      </div>
+                      <div id=rng style="display: none;">
+                       <input style="width:45px;" id="from" type="number\text" value="Low bound">
+                       <input style="width:45px;" id="to" type="number\text" value="High bound">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(2,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(2,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(2,1)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="mortality rate of eggs" id = 'me_e'>\({\mu}_{e}\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox"  onchange ="activeRngVal(this,3);">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val>
+                       <input id= valInp style="width:145px;"type="number"  value="0.02618">
+                      </div>
+                      <div id=rng style="display: none;">
+                       <input style="width:45px;" id="from" type="number\text" value="Low bound">
+                       <input style="width:45px;" id="to" type="number\text" value="High bound">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(3,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(3,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(3,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="mortality rate of questing larvae" id ='mu_ql'>\({\mu}_{ql}\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox"  onchange ="activeRngVal(this,4);">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val>
+                       <input id= valInp style="width:145px;"type="number"  value="0.0068">
+                      </div>
+                      <div id=rng style="display: none;">
+                       <input style="width:45px;" id="from" type="number\text" value="Low bound">
+                       <input style="width:45px;" id="to" type="number\text" value="High bound">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(4,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(4,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(4,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="mortality rate of engorged larvae" id ='me_el'>\({\mu}_{el}\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox"  onchange ="activeRngVal(this,5);">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val>
+                       <input id= valInp style="width:145px;"type="number"  value="0.001428">
+                      </div>
+                      <div id=rng style="display: none;">
+                       <input style="width:45px;" id="from" type="number\text" value="Low bound">
+                       <input style="width:45px;" id="to" type="number\text" value="High bound">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(5,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(5,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(5,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="mortality rate of questing nymphs" id ='mu_qn'>\({\mu}_{qn}\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox"  onchange ="activeRngVal(this,6);">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val>
+                       <input id= valInp style="width:145px;"type="number"  value="0.0034">
+                      </div>
+                      <div id=rng style="display: none;">
+                       <input style="width:45px;" id="from" type="number\text" value="Low bound">
+                       <input style="width:45px;" id="to" type="number\text" value="High bound">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(6,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(6,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(6,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="mortality rate of engorged nymphs" id ='me_en'> \({\mu}_{en}\) </td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox"  onchange ="activeRngVal(this,7);">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val>
+                       <input id= valInp style="width:145px;"type="number"  value="0.000476">
+                      </div>
+                      <div id=rng style="display: none;">
+                       <input style="width:45px;" id="from" type="number\text" value="Low bound">
+                       <input style="width:45px;" id="to" type="number\text" value="High bound">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(7,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(7,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(7,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="mortality rate of questing adults" id ='mu_qa'>\({\mu}_{qa}\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox"  onchange ="activeRngVal(this,8);">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val>
+                       <input id= valInp style="width:145px;"type="number"  value="0.00136">
+                      </div>
+                      <div id=rng style="display: none;">
+                       <input style="width:45px;" id="from" type="number\text" value="Low bound">
+                       <input style="width:45px;" id="to" type="number\text" value="High bound">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(8,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(8,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(8,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="mortality rate of engorged adults" id ='mu_ea'>\({\mu}_{ea}\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox"  onchange ="activeRngVal(this,9);">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val>
+                       <input id= valInp style="width:145px;"type="number"  value="0.000408">
+                      </div>
+                      <div id=rng style="display: none;">
+                       <input style="width:45px;" id="from" type="number\text" value="Low bound">
+                       <input style="width:45px;" id="to" type="number\text" value="High bound">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(9,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(9,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(9,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="mortality of hosts" id = 'mu_h'>\(\mu_h\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox"  onchange ="activeRngVal(this,10);">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val>
+                       <input id= valInp style="width:145px;"type="text"  value="1/365">
+                      </div>
+                      <div id=rng style="display: none;">
+                       <input style="width:45px;" id="from" type="number\text" value="Low bound">
+                       <input style="width:45px;" id="to" type="number\text" value="High bound">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(10,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(10,2)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(10,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="transmission efficacy from nymphs to hosts" id = beta_nh>\({\beta}_{nh}\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox"  onchange ="activeRngVal(this,11);">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val>
+                       <input id= valInp style="width:145px;"type="number"  value="0.9">
+                      </div>
+                      <div id=rng style="display: none;">
+                       <input style="width:45px;" id="from" type="number\text" value="Low bound">
+                       <input style="width:45px;" id="to" type="number\text" value="High bound">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(11,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(11,2)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(11,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="transmission efficacy from hosts to larvae" id ='beta_hl'>\({\beta}_{hl}\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox"  onchange ="activeRngVal(this,12);">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val>
+                       <input id= valInp style="width:145px;"type="number"  value="0.8">
+                      </div>
+                      <div id=rng style="display: none;">
+                       <input style="width:45px;" id="from" type="number\text" value="Low bound">
+                       <input style="width:45px;" id="to" type="number\text" value="High bound">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(12,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(12,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(12,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="transmission efficacy from hosts to nymphs" id ='beta_hn'>\({\beta}_{hn}\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox"  onchange ="activeRngVal(this,13);">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val>
+                       <input id= valInp style="width:145px;"type="number"  value="0.8">
+                      </div>
+                      <div id=rng style="display: none;">
+                       <input style="width:45px;" id="from" type="number\text" value="Low bound">
+                       <input style="width:45px;" id="to" type="number\text" value="High bound">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(13,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(13,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(13,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="host-attaching rate of actively questing ticks - larvae" id ='lambda_l'>\({\lambda}_l\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" checked="true" onchange ="activeRngVal(this,14);">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val style="display: none;">
+                       <input id= valInp style="width:145px;"type="number"  value="value">
+                      </div>
+                      <div id=rng>
+                       <input style="width:45px;" id="from" type="number\text" value="0.005">
+                       <input style="width:45px;" id="to" type="number\text" value="0.1">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" onclick="checkBox(14,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" checked="checked" onclick="checkBox(14,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(14,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="host-attaching rate of actively questing ticks - nymphs" id ='lambda_ln'>\({\lambda}_n\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" checked="true" onchange ="activeRngVal(this,15);">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val style="display: none;">
+                       <input id= valInp style="width:145px;"type="number"  value="value">
+                      </div>
+                      <div id=rng>
+                       <input style="width:45px;" id="from" type="number\text" value="0.005">
+                       <input style="width:45px;" id="to" type="number\text" value="0.1">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" onclick="checkBox(15,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" checked="checked" onclick="checkBox(15,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(15,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="host-attaching rate of actively questing ticks - adults" id = 'lambda_a'>\({\lambda}_a\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" checked="true" onchange ="activeRngVal(this,16);">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val style="display: none;">
+                       <input id= valInp style="width:145px;"type="number"  value="value">
+                      </div>
+                      <div id=rng>
+                       <input style="width:45px;" id="from" type="number\text" value="0.005">
+                       <input style="width:45px;" id="to" type="number\text" value="40">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" onclick="checkBox(16,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(16,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" checked="checked" onclick="checkBox(16,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="he degree of temperature dependency on the human-attaching rate of nymphs" id ='alpha'>\(\alpha\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" checked="true" onchange ="activeRngVal(this,17);">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val style="display: none;">
+                       <input id= valInp style="width:145px;"type="number"  value="value">
+                      </div>
+                      <div id=rng>
+                       <input style="width:45px;" id="from" type="number\text" value="0.1">
+                       <input style="width:45px;" id="to" type="number\text" value="2000">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" onclick="checkBox(17,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(17,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" checked="checked" onclick="checkBox(17,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="probability of successful feeding - larvae" id ='f_l'>\({f}_l\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" checked="true" onchange ="activeRngVal(this,18);">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val style="display: none;">
+                       <input id= valInp style="width:145px;"type="number"  value="value">
+                      </div>
+                      <div id=rng>
+                       <input style="width:45px;" id="from" type="number\text" value="0.1">
+                       <input style="width:45px;" id="to" type="number\text" value="1">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" onclick="checkBox(18,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" checked="checked" onclick="checkBox(18,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(18,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="probability of successful feeding - nymphs" id ='f_n'>\({f}_n\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" checked="true" onchange ="activeRngVal(this,19);">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val style="display: none;">
+                       <input id= valInp style="width:145px;"type="number"  value="value">
+                      </div>
+                      <div id=rng>
+                       <input style="width:45px;" id="from" type="number\text" value="0.1">
+                       <input style="width:45px;" id="to" type="number\text" value="1">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" onclick="checkBox(19,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" checked="checked" onclick="checkBox(19,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(19,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="probability of successful feeding - adults" id ='f_a'>\({f}_a\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" checked="true" onchange ="activeRngVal(this,20);">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val style="display: none;">
+                       <input id= valInp style="width:145px;"type="number"  value="value">
+                      </div>
+                      <div id=rng>
+                       <input style="width:45px;" id="from" type="number\text" value="0.1">
+                       <input style="width:45px;" id="to" type="number\text" value="1">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" onclick="checkBox(20,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" checked="checked" onclick="checkBox(20,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(20,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="relative ratio between nymphs and adults for the human attachments" id = 'kappa'> \(\kappa\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" checked="true" onchange ="activeRngVal(this,21);">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val style="display: none;">
+                       <input id= valInp style="width:145px;"type="number"  value="value">
+                      </div>
+                      <div id=rng>
+                       <input style="width:45px;" id="from" type="number\text" value="0.0001">
+                       <input style="width:45px;" id="to" type="number\text" value="0.1">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" onclick="checkBox(21,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(21,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" checked="checked" onclick="checkBox(21,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="probability of an infected nymph to induce non-systemic infection to the cofeeding susceptible larvae" id ='c'> c</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" onchange ="activeRngVal(this,22);">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val style="display: none;">
+                       <input id= valInp style="width:145px;"type="number"  value="0.4">
+                      </div>
+                      <div id=rng>
+                       <input style="width:45px;" id="from" type="number\text" value="Low bound">
+                       <input style="width:45px;" id="to" type="number\text" value="High bound">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(22,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(22,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(22,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="average duration of feeding" id ='T_f'> \({T}_{f}\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" onchange ="activeRngVal(this,23);">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val>
+                       <input id= valInp style="width:145px;"type="number"  value="4">
+                      </div>
+                      <div id=rng style="display: none;">
+                       <input style="width:45px;" id="from" type="number\text" value="Low bound">
+                       <input style="width:45px;" id="to" type="number\text" value="High bound">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(23,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(23,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(23,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="reporting probability" id ="obsprob"> obsprob</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" checked="true" onchange ="activeRngVal(this,24);">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val style="display: none;">
+                       <input id= valInp style="width:145px;"type="number"  value="value">
+                      </div>
+                      <div id=rng>
+                       <input style="width:45px;" id="from" type="number\text" value="0.1">
+                       <input style="width:45px;" id="to" type="number\text" value="1">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" onclick="checkBox(24,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" checked="checked" onclick="checkBox(24,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(24,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="the minimum temperature for the activity of questing larvae" id ='T_min_l'> T_min_l</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" checked="true" onchange ="activeRngVal(this,25);">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val style="display: none;">
+                       <input id= valInp style="width:145px;"type="number"  value="value">
+                      </div>
+                      <div id=rng>
+                       <input style="width:45px;" id="from" type="number\text" value="0">
+                       <input style="width:45px;" id="to" type="number\text" value="25">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(25,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(25,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(25,2)">
+                      </div>
+                    </td>
+                  </tr>
+                    <tr>
+                    <td title="host recovery rate" id ='gamma'> \(\gamma\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" checked="true" onchange ="activeRngVal(this,26);">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val style="display: none;">
+                       <input id= valInp style="width:145px;"type="number"  value="value">
+                      </div>
+                      <div id=rng>
+                       <input style="width:45px;" id="from" type="number\text" value="0.01">
+                       <input style="width:45px;" id="to" type="number\text" value="0.5">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(26,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(26,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(26,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="eggs"> \({E}_{0}\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" checked="true" onclick="return false;">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val>
+                       <input id= valInp style="width:145px;display: none;"type="number"  value="value">
+                      </div>
+                      <div id=rng>
+                       <input style="width:45px;" id="from" type="number\text" value="0">
+                       <input style="width:45px;" id="to" type="number\text" value="100">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(27,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(27,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(27,2)">
+                      </div>
+                    </td>
+                  </tr>
+                    <tr>
+                    <td title="questing larvae"> \({QL}_{0}\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" checked="true" onclick="return false;">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val>
+                       <input id= valInp style="width:145px;display: none;"type="number"  value="value">
+                      </div>
+                      <div id=rng>
+                       <input style="width:45px;" id="from" type="number\text" value="0">
+                       <input style="width:45px;" id="to" type="number\text" value="100">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(28,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(28,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(28,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="susceptible engorged larvae"> \({EL}_{s0}\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" checked="true" onclick="return false;">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val>
+                       <input id= valInp style="width:145px;display: none;"type="number"  value="value">
+                      </div>
+                      <div id=rng>
+                       <input style="width:45px;" id="from" type="number\text" value="0">
+                       <input style="width:45px;" id="to" type="number\text" value="100">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(29,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(29,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(29,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="nfected engorged larvae"> \({EL}_{i0}\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" checked="true" onclick="return false;">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val>
+                       <input id= valInp style="width:145px;display: none;"type="number"  value="value">
+                      </div>
+                      <div id=rng>
+                       <input style="width:45px;" id="from" type="number\text" value="0">
+                       <input style="width:45px;" id="to" type="number\text" value="100">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(30,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(30,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(30,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="susceptiblequesting nymphs"> \({QN}_{s0}\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" checked="true" onclick="return false;">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val>
+                       <input id= valInp style="width:145px;display: none;"type="number"  value="value">
+                      </div>
+                      <div id=rng>
+                       <input style="width:45px;" id="from" type="number\text" value="0">
+                       <input style="width:45px;" id="to" type="number\text" value="100">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(31,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(31,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(31,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="nfected questing nymphs"> \({QN}_{i0}\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" checked="true" onclick="return false;">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val>
+                       <input id= valInp style="width:145px;display: none;"type="number"  value="value">
+                      </div>
+                      <div id=rng>
+                       <input style="width:45px;" id="from" type="number\text" value="0">
+                       <input style="width:45px;" id="to" type="number\text" value="100">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(32,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(32,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(32,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="susceptible engorged nymphs"> \({EN}_{s0}\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" checked="true" onclick="return false;">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val>
+                       <input id= valInp style="width:145px;display: none;"type="number"  value="value">
+                      </div>
+                      <div id=rng>
+                       <input style="width:45px;" id="from" type="number\text" value="0">
+                       <input style="width:45px;" id="to" type="number\text" value="100">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(33,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(33,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(33,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="nfected engorged nymphs"> \({EN}_{i0}\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" checked="true" onclick="return false;">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val>
+                       <input id= valInp style="width:145px;display: none;"type="number"  value="value">
+                      </div>
+                      <div id=rng>
+                       <input style="width:45px;" id="from" type="number\text" value="0">
+                       <input style="width:45px;" id="to" type="number\text" value="100">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(34,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(34,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(34,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="susceptible questing adults"> \({QA}_{s0}\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" checked="true" onclick="return false;">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val>
+                       <input id= valInp style="width:145px;display: none;"type="number"  value="value">
+                      </div>
+                      <div id=rng>
+                       <input style="width:45px;" id="from" type="number\text" value="0">
+                       <input style="width:45px;" id="to" type="number\text" value="100">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(35,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(35,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(35,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="nfectedquesting adults"> \({QA}_{i0}\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" checked="true" onclick="return false;">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val>
+                       <input id= valInp style="width:145px;display: none;"type="number"  value="value">
+                      </div>
+                      <div id=rng>
+                       <input style="width:45px;" id="from" type="number\text" value="0">
+                       <input style="width:45px;" id="to" type="number\text" value="100">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(36,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(36,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(36,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="engorged adults"> \({EA}_{0}\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" checked="true" onclick="return false;">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val>
+                       <input id= valInp style="width:145px;display: none;"type="number"  value="value">
+                      </div>
+                      <div id=rng>
+                       <input style="width:45px;" id="from" type="number\text" value="0">
+                       <input style="width:45px;" id="to" type="number\text" value="100">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(37,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(37,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(37,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="susceptible host population"> \({H}_{s0}\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" checked="true" onclick="return false;">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val>
+                       <input id= valInp style="width:145px;display: none;"type="number"  value="value" >
+                      </div>
+                      <div id=rng>
+                       <input style="width:45px;" id="from" type="number\text" value="0">
+                       <input style="width:45px;" id="to" type="number\text" value="0.5">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(38,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(38,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(38,2)">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td title="nfected host population"> \({H}_{i0}\)</td>
+                    <td>
+                      <label class="switch">
+                        <input id="p-switch" type="checkbox" checked="true" onclick="return false;">
+                        <span class="slider round"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div id=val>
+                       <input id= valInp style="width:145px;display: none;"type="number"  value="value">
+                      </div>
+                      <div id=rng>
+                       <input style="width:45px;" id="from" type="number\text" value="0">
+                       <input style="width:45px;" id="to" type="number\text" value="0.5">
+                      </div>
+                    </td>
+                    <td>
+                      <div id ="falg-bound">
+                      <input style = "width: 30%;" id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(39,0)">
+                      <input style = "width: 30%;" id="flag2" type="checkbox" name="i" onclick="checkBox(39,1)">
+                      <input style = "width: 30%;" id="flag3" type="checkbox" name="i" onclick="checkBox(39,2)">
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <center>
+          <div style="text-align: center">
+            <button class="custom-button-style-only" id="generateModel">Generate the Model</button>
+            <br>
+            <table  style="background-color: #2fbb7ab3 ;border: 1px solid black;align-items: center;width: 100%">
+              <tbody id="Fixed-param-holder"></tbody>
+            </table>
+          </div>
+        </center>
+    </div>
+<!-- Initial points TAB -->
+     <div id="initial" class="tab-pane fade" style="margin-bottom: 100px">
+      <div id="table">
+        <p>Upload initial points for the refinment</p>
+        <input id="tab4-upload" type="file">
+        <h3>OR</h3>
+      </div>
+
+      <div id="table">
+        <p>Generate initial points for the first search</p>
+        <table>
+          <tr>
+            <td  style="width:82px;" title="Integer; number of points to use." class = "variable"> Number of points</td>
+            <td><input id= "sobolPoint" style="width:361px; border: 0; text-align: center;" type="number" value="1"></td>
+          </tr>
+        </table>
+      </div>
+      <div id="table">
+          <div id="sobolButtonDiv" style="text-align: center;">
+            <button class="custom-button-style-only" id="sobolButton">Compute</button>
+          </div>
+          <div id="sobolButtonDivDownload" style="text-align: center;">
+            <button class="custom-button-style-only" id="sobolButtonDownload"  style="display: none;">Download</button>
+          </div>
+          <div class="force-center">
+            <textarea class="special-log" id="special-log-sobol"></textarea>
+          </div>
+        </div>
+
+     </div>
+
+<!-- Refinment TAB -->
+    <div id="refinements" class="tab-pane fade">
+        <br>
+        <ul class="nav nav-tabs">
+          <li><a data-toggle="tab" href="#omega_tab"> \(\omega\)</a></li>
+          <li><a data-toggle="tab" href="#lambda_l_tab">\({\lambda}_l\)</a></li>
+          <li><a data-toggle="tab" href="#lambda_n_tab"> \({\lambda}_n\)</a></li>
+          <li><a data-toggle="tab" href="#lambda_a_tab"> \({\lambda}_a\)</a></li>
+          <li><a data-toggle="tab" href="#alpha_tab">\(\alpha\)</a></li>
+          <li><a data-toggle="tab" href="#f_l_tab">\({f}_l\)</a></li>
+          <li><a data-toggle="tab" href="#f_n_tab"> \({f}_n\)</a></li>
+          <li><a data-toggle="tab" href="#f_a_tab"> \({f}_a\)</a></li>
+          <li><a data-toggle="tab" href="#kappa_tab">\(\kappa\)</a></li>
+          <li><a data-toggle="tab" href="#obsprob_tab">Obs-prob</a></li>
+          <li><a data-toggle="tab" href="#TminL_tab"> T_min_l</a></li>
+          <li><a data-toggle="tab" href="#gamma_tab"> \(\gamma\)</a></li>
+        </ul>
+        <div class="tab-content ">
+  <!-- Omega tab  -->
+          <div id="omega_tab" class="tab-pane fade">
+            <div id="table">
+              <table id="tableOmega">
+                <tr>
+                  <td>
+                    <p>Parameter limits</p>
+                  </td>
+                  <td>
+                    Number of points
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div>
+                      <input style = "width: 40%; float: left"type="number" id="limit1Omega" value="0">
+                      <p style = "width: 20%;float: left">to</p>
+                      <input style = "width: 40%;float: left" type="number" id="limit2Omega" value="100">
+                    </div>
+                  </td>
+                  <td>
+                    <input type="number" id = "NoPointsOmega" value="1">
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <center>
+              <button id="buttonRunOmega" class="custom-button-style-only">Generate & Run</button>
+              <button class="custom-button-style-only" id="OmegaButtonDownload" style="display: none;">Download</button>
+            </center>
+            <div class="force-center">
+              <textarea  class = "special-log"  id="special-log-Omega"></textarea>
+            </div>
+          </div>
+  <!-- lambda_l tab -->
+          <div id="lambda_l_tab" class="tab-pane fade ">
+            <div id="table">
+              <table id="tableLambda_l">
+                <tr>
+                  <td>
+                    <p>Parameter limits</p>
+                  </td>
+                  <td>
+                    Number of points
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div>
+                      <input style = "width: 40%; float: left"type="number" id="limit1Lambda_l" value="0">
+                      <p style = "width: 20%;float: left">to</p>
+                      <input style = "width: 40%;float: left" type="number" id="limit2Lambda_l" value="100">
+                    </div>
+                  </td>
+                  <td>
+                    <input type="number" id = "NoPointsLambda_l" value="1">
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <center>
+              <button id="buttonRunLambda_l" class="custom-button-style-only">Generate & Run</button>
+              <button class="custom-button-style-only" id="Lambda_lButtonDownload" style="display: none;">Download</button>
+            </center>
+            <div class="force-center">
+              <textarea  class = "special-log"  id="special-log-Lambda_l"></textarea>
+            </div>
+          </div>
+
+  <!-- Lambda_n       -->
+          <div id="lambda_n_tab" class="tab-pane fade">
+            <div id="table">
+              <table id="tableLambda_n">
+                <tr>
+                  <td>
+                    <p>Parameter limits</p>
+                  </td>
+                  <td>
+                    Number of points
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div>
+                      <input style = "width: 40%; float: left"type="number" id="limit1Lambda_n" value="0">
+                      <p style = "width: 20%;float: left">to</p>
+                      <input style = "width: 40%;float: left" type="number" id="limit2Lambda_n" value="100">
+                    </div>
+                  </td>
+                  <td>
+                    <input type="number" id = "NoPointsLambda_n" value="1">
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <center>
+              <button id="buttonRunLambda_n" class="custom-button-style-only">Generate & Run</button>
+              <button class="custom-button-style-only" id="Lambda_nButtonDownload" style="display: none;">Download</button>
+            </center>
+            <div class="force-center">
+              <textarea  class = "special-log"  id="special-log-Lambda_n"></textarea>
+            </div>
+          </div>
+
+  <!-- Lambda_a tab       -->
+          <div id="lambda_a_tab" class="tab-pane fade">
+            <div id="table">
+              <table id="tableLambda_a">
+                <tr>
+                  <td>
+                    <p>Parameter limits</p>
+                  </td>
+                  <td>
+                    Number of points
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div>
+                      <input style = "width: 40%; float: left"type="number" id="limit1Lambda_a" value="0">
+                      <p style = "width: 20%;float: left">to</p>
+                      <input style = "width: 40%;float: left" type="number" id="limit2Lambda_a" value="100">
+                    </div>
+                  </td>
+                  <td>
+                    <input type="number" id = "NoPointsLambda_a" value="1">
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <center>
+              <button id="buttonRunLambda_a" class="custom-button-style-only">Generate & Run</button>
+              <button class="custom-button-style-only" id="Lambda_aButtonDownload" style="display: none;">Download</button>
+            </center>
+            <div class="force-center">
+              <textarea  class = "special-log"  id="special-log-Lambda_a"></textarea>
+            </div>
+          </div>
+<!-- alpha tab       -->
+          <div id="alpha_tab" class="tab-pane fade">
+            <div id="table">
+              <table id="tableAlpha">
+                <tr>
+                  <td>
+                    <p>Parameter limits</p>
+                  </td>
+                  <td>
+                    Number of points
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div>
+                      <input style = "width: 40%; float: left"type="number" id="limit1Alpha" value="0">
+                      <p style = "width: 20%;float: left">to</p>
+                      <input style = "width: 40%;float: left" type="number" id="limit2Alpha" value="100">
+                    </div>
+                  </td>
+                  <td>
+                    <input type="number" id = "NoPointsAlpha" value="1">
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <center>
+              <button id="buttonRunAlpha" class="custom-button-style-only">Generate & Run</button>
+              <button class="custom-button-style-only" id="AlphaButtonDownload" style="display: none;">Download</button>
+            </center>
+            <div class="force-center">
+              <textarea  class = "special-log"  id="special-log-Alpha"></textarea>
+            </div>
+          </div>
+  <!-- F_l tab       -->
+          <div id="f_l_tab" class="tab-pane fade">
+            <div id="table">
+              <table id="tableF_l">
+                <tr>
+                  <td>
+                    <p>Parameter limits</p>
+                  </td>
+                  <td>
+                    Number of points
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div>
+                      <input style = "width: 40%; float: left"type="number" id="limit1F_l" value="0">
+                      <p style = "width: 20%;float: left">to</p>
+                      <input style = "width: 40%;float: left" type="number" id="limit2F_l" value="100">
+                    </div>
+                  </td>
+                  <td>
+                    <input type="number" id = "NoPointsF_l" value="1">
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <center>
+              <button id="buttonRunF_l" class="custom-button-style-only">Generate & Run</button>
+              <button class="custom-button-style-only" id="F_lButtonDownload" style="display: none;">Download</button>
+            </center>
+            <div class="force-center">
+              <textarea  class = "special-log"  id="special-log-F_l"></textarea>
+            </div>
+          </div>
+
+  <!-- F_n tab       -->
+          <div id="f_n_tab" class="tab-pane fade">
+            <div id="table">
+              <table id="tableF_n">
+                <tr>
+                  <td>
+                    <p>Parameter limits</p>
+                  </td>
+                  <td>
+                    Number of points
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div>
+                      <input style = "width: 40%; float: left"type="number" id="limit1F_n" value="0">
+                      <p style = "width: 20%;float: left">to</p>
+                      <input style = "width: 40%;float: left" type="number" id="limit2F_n" value="100">
+                    </div>
+                  </td>
+                  <td>
+                    <input type="number" id = "NoPointsF_n" value="1">
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <center>
+              <button id="buttonRunF_n" class="custom-button-style-only">Generate & Run</button>
+              <button class="custom-button-style-only" id="F_nButtonDownload" style="display: none;">Download</button>
+            </center>
+            <div class="force-center">
+              <textarea  class = "special-log"  id="special-log-F_n"></textarea>
+            </div>
+          </div>
+
+  <!-- F_a tab       -->
+          <div id="f_a_tab" class="tab-pane fade">
+            <div id="table">
+              <table id="tableF_a">
+                <tr>
+                  <td>
+                    <p>Parameter limits</p>
+                  </td>
+                  <td>
+                    Number of points
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div>
+                      <input style = "width: 40%; float: left"type="number" id="limit1F_a" value="0">
+                      <p style = "width: 20%;float: left">to</p>
+                      <input style = "width: 40%;float: left" type="number" id="limit2F_a" value="100">
+                    </div>
+                  </td>
+                  <td>
+                    <input type="number" id = "NoPointsF_a" value="1">
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <center>
+              <button id="buttonRunF_a" class="custom-button-style-only">Generate & Run</button>
+              <button class="custom-button-style-only" id="F_aButtonDownload" style="display: none;">Download</button>
+            </center>
+            <div class="force-center">
+              <textarea  class = "special-log"  id="special-log-F_a"></textarea>
+            </div>
+          </div>
+
+  <!-- Kappa tab       -->
+          <div id="kappa_tab" class="tab-pane fade">
+            <div id="table">
+              <table id="tableKappa">
+                <tr>
+                  <td>
+                    <p>Parameter limits</p>
+                  </td>
+                  <td>
+                    Number of points
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div>
+                      <input style = "width: 40%; float: left"type="number" id="limit1Kappa" value="0">
+                      <p style = "width: 20%;float: left">to</p>
+                      <input style = "width: 40%;float: left" type="number" id="limit2Kappa" value="100">
+                    </div>
+                  </td>
+                  <td>
+                    <input type="number" id = "NoPointsKappa" value="1">
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <center>
+              <button id="buttonRunKappa" class="custom-button-style-only">Generate & Run</button>
+              <button class="custom-button-style-only" id="KappaButtonDownload" style="display: none;">Download</button>
+            </center>
+            <div class="force-center">
+              <textarea  class = "special-log"  id="special-log-Kappa"></textarea>
+            </div>
+          </div>
+
+  <!-- obsProb tab       -->
+          <div id="obsprob_tab" class="tab-pane fade">
+            <div id="table">
+              <table id="tableObsprob">
+                <tr>
+                  <td>
+                    <p>Parameter limits</p>
+                  </td>
+                  <td>
+                    Number of points
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div>
+                      <input style = "width: 40%; float: left"type="number" id="limit1Obsprob" value="0">
+                      <p style = "width: 20%;float: left">to</p>
+                      <input style = "width: 40%;float: left" type="number" id="limit2Obsprob" value="100">
+                    </div>
+                  </td>
+                  <td>
+                    <input type="number" id = "NoPointsObsprob" value="1">
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <center>
+              <button id="buttonRunObsprob" class="custom-button-style-only">Generate & Run</button>
+              <button class="custom-button-style-only" id="ObsprobButtonDownload" style="display: none;">Download</button>
+            </center>
+            <div class="force-center">
+              <textarea  class = "special-log"  id="special-log-Obsprob"></textarea>
+            </div>
+          </div>
+
+  <!-- TminL tab       -->
+          <div id="TminL_tab" class="tab-pane fade">
+            <div id="table">
+              <table id="tableTminL">
+                <tr>
+                  <td>
+                    <p>Parameter limits</p>
+                  </td>
+                  <td>
+                    Number of points
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div>
+                      <input style = "width: 40%; float: left"type="number" id="limit1TminL" value="0">
+                      <p style = "width: 20%;float: left">to</p>
+                      <input style = "width: 40%;float: left" type="number" id="limit2TminL" value="100">
+                    </div>
+                  </td>
+                  <td>
+                    <input type="number" id = "NoPointsTminL" value="1">
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <center>
+              <button id="buttonRunTminL" class="custom-button-style-only">Generate & Run</button>
+              <button class="custom-button-style-only" id="TminLButtonDownload" style="display: none;">Download</button>
+            </center>
+            <div class="force-center">
+              <textarea  class = "special-log"  id="special-log-TminL"></textarea>
+            </div>
+          </div>
+
+  <!-- Gamma tab       -->
+          <div id="gamma_tab" class="tab-pane fade">
+            <div id="table">
+              <table id="tableGamma">
+                <tr>
+                  <td>
+                    <p>Parameter limits</p>
+                  </td>
+                  <td>
+                    Number of points
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div>
+                      <input style = "width: 40%; float: left"type="number" id="limit1Gamma" value="0">
+                      <p style = "width: 20%;float: left">to</p>
+                      <input style = "width: 40%;float: left" type="number" id="limit2Gamma" value="100">
+                    </div>
+                  </td>
+                  <td>
+                    <input type="number" id = "NoPointsGamma" value="1">
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <center>
+              <button id="buttonRunGamma" class="custom-button-style-only">Generate & Run</button>
+              <button class="custom-button-style-only" id="GammaButtonDownload" style="display: none;">Download</button>
+            </center>
+            <div class="force-center">
+              <textarea  class = "special-log"  id="special-log-Gamma"></textarea>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+  <!-- Combine TAB -->
+
+      <div id="combine" class="tab-pane fade">
+        <br>
+        <div id="setup" style="width: 350px;">
+          <input id="tab3file1-upload" type="file" >
+          <input id="tab3file2-upload" type="file" >
+          <input id="tab3file3-upload" type="file" >
+          <input id="tab3file4-upload" type="file" >
+          <input id="tab3file5-upload" type="file" >
+          <input id="tab3file6-upload" type="file" >
+          <input id="tab3file7-upload" type="file" >
+          <input id="tab3file8-upload" type="file" >
+          <input id="tab3file9-upload" type="file" >
+          <input id="tab3file10-upload" type="file" >
+          <button id="combineButton" class="custom-button">Combine</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

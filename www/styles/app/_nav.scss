@@ -1,0 +1,33 @@
+body section.application .nav {
+  text-align: center;
+  justify-content: center;
+  border: none;
+  margin-top: 64px;
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    .nav-link {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      text-align: center;
+      border: none;
+      font-size: 18px;
+      color: $grey;
+      span {
+        display: flex;
+        align-items: baseline;
+        .mjx-sub {
+          transform: translateY(3px);
+        }
+      }
+    }
+    img {
+      margin-bottom: 16px;
+      width: 64px;
+      height: auto;
+    }
+  }
+}

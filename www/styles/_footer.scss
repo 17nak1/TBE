@@ -1,0 +1,37 @@
+body footer {
+  background-color: #1c3583;
+  padding: 48px 0 32px 0;
+  p {
+    margin: 0;
+    color: #ffffff;
+    opacity: .6;
+    font-size: 12px;
+    letter-spacing: .5px;
+    line-height: 24px;
+  }
+  a {
+    color: #fff;
+    margin: 0 16px;
+    letter-spacing: 1.44px;
+    &:hover {
+      color: #fff;
+    }
+  }
+  img {
+    max-width: 256px;
+  }
+  .legal {
+    a {
+      opacity: .6;
+      font-size: 12px;
+      letter-spacing: .4px;
+      margin-right: 0;
+    }
+  }
+  .adjust-links {
+    margin-top: 0;
+  }
+  .row-margin {
+    margin-top: 32px;
+  }
+}

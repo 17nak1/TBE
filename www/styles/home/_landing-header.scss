@@ -1,0 +1,55 @@
+section.header {
+  padding: 164px 0 0 0;
+  .header-text {
+    h1 {
+      font-size: 48px;
+      font-weight: 500;
+      color: $dark;
+      span {
+        color: $blue;
+        font-family: $heading;
+
+      }
+    }
+    p {
+      font-size: 16px;
+      color: $grey;
+    }
+    .mdc-button {
+      &.mdc-button--raised {
+        background-color: $blue;
+      }
+      &.mdc-button--outlined {
+        border-color: $blue;
+        color: $blue;
+      }
+      text-transform: capitalize;
+      font-weight: 500;
+      font-family: $heading;
+    }
+
+  }
+  .scroll-ind {
+    text-align: center;
+    margin-top: 220px;
+    animation: bob 2s infinite;
+
+    p {
+      color: $blue;
+      margin-bottom: 0;
+    }
+    i {
+      display: block;
+      color: $blue;
+      &.bottom {
+        transform: translateY(-18px);
+      }
+    }
+  }
+}
+
+@keyframes bob {
+    0%   {transform: translateY(0px);}
+    75%   {transform: translateY(-8px);}
+    100% {transform: translateY(0px);}
+}

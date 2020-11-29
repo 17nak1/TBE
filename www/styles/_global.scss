@@ -1,0 +1,100 @@
+html {
+  body {
+    p, a, button, span,h2, h3,h4 {
+      font-family: $body;
+
+    }
+    h1 {
+      font-family: $heading;
+      margin-bottom: 24px;
+    }
+    h2, h3, h4 {
+      margin-bottom: 24px;
+    }
+    br {
+      @media (max-width: 992px) { display: none;}
+
+    }
+    a {
+      &:hover {
+        text-decoration: none;
+      }
+    }
+    input, textarea {
+      &:focus {
+        outline: none;
+      }
+    }
+    button {
+      background-color: $blue;
+      padding: 12px 24px;
+      font-family: $body;
+      font-weight: 500;
+      border-radius: 4px;
+      color: #fff;
+      border:none;
+
+      &.disabled {
+        cursor: default;
+        background-color: $lgrey !important;
+      }
+    }
+    section.refinement-section .row {
+      margin-top: 0px;
+      margin-bottom: 0px;
+    }
+  
+    section.refinement-section .tab-content {
+      margin-top: 0px;
+      margin-bottom: 10px; 
+    }
+    section.refinement-section .col-sm-12 {
+      &.margin{
+        margin-top: 30px;
+      }
+    }
+
+    .align-right {
+      align-items: right;
+    }
+    textarea {
+      background-color: #f7f7f7;
+      width: 100%;
+      height: 300px;
+      border: none;
+      border-radius: 4px;
+      text-align: left;
+      font-family: 'Source Code Pro', monospace;
+      padding: 16px 32px;
+    }
+    .navbar .navbar-nav .nav-item .nav-link {
+      color: $grey;
+      font-weight: 500;
+    }
+    .spanTitle{
+      opacity: 0.4;
+    }
+    .nav-link.active {
+      .spanTitle {
+        opacity: 1;
+      }
+    }
+  }
+  section.output {
+    table {
+      background-color: #f7f7f7;
+      width: 100%;
+      border: none;
+      border-radius: 4px;
+
+      padding: 16px 32px;
+      border-collapse: unset;
+      margin-bottom: 32px !important;
+      tbody {
+        text-align: left;
+        font-family: 'Source Code Pro', monospace;
+
+      }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+section.combine-files {
+  #file-combine-container {
+    display: flex;
+    flex-direction: column;
+    .combine-input {
+      color: $blue;
+    }
+    .custom-upload {
+      color: $blue;
+      &:hover {
+        cursor: pointer;
+      }
+    }
+    #file-names {
+      padding: 8px 0;
+      p {
+        margin-bottom: 4px;
+
+      }
+      button {
+        padding: 6px 12px;
+        font-size: 14px;
+      }
+    }
+  }
+  .interact {
+    padding: 16px 0;
+  }
+}
